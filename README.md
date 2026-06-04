@@ -18,8 +18,6 @@ Hệ thống Thương mại Điện tử (E-Commerce) phân tán toàn diện đ
 *   **Họ và tên:** Trần Tuấn Cường
 *   **Mã số sinh viên (MSSV):** B22DCVT073
 *   **Lớp:** E22CNPM02
-*   **Nhóm:** 01
-*   **Học phần:** Kiến trúc và Thiết kế Phần mềm (SoAD)
 *   **Cơ sở đào tạo:** Học viện Công nghệ Bưu chính Viễn thông (PTIT)
 *   **Năm học:** 2026
 
