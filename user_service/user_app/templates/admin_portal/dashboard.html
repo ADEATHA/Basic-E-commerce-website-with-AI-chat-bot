@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard | System Core</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Outfit', sans-serif; background-color: #020617; color: #f8fafc; }
+        .admin-glass { background: rgba(15, 23, 42, 0.7); backdrop-filter: blur(20px); border: 1px solid rgba(16, 185, 129, 0.1); }
+        .nav-link { transition: all 0.3s; }
+        .nav-link:hover { background: rgba(16, 185, 129, 0.1); color: #10b981; }
+    </style>
+</head>
+<body class="min-h-screen bg-slate-950 flex">
+    <!-- Sidebar -->
+    <aside class="w-72 border-r border-slate-800 flex flex-col p-6 hidden lg:flex">
+        <div class="flex items-center space-x-3 mb-10 px-2">
+            <div class="w-10 h-10 bg-emerald-500 rounded-xl flex items-center justify-center text-xl">🛡️</div>
+            <span class="text-xl font-black tracking-tight text-white">System Core</span>
+        </div>
+
+        <nav class="flex-1 space-y-2">
+            <a href="{% url 'admin_dashboard' %}" class="nav-link flex items-center space-x-3 px-4 py-3 rounded-xl text-emerald-400 bg-emerald-500/10 font-bold">
+                <span>📊</span> <span>Overview</span>
+            </a>
+            <a href="{% url 'admin_manage_users' %}" class="nav-link flex items-center space-x-3 px-4 py-3 rounded-xl text-slate-400 font-medium">
+                <span>👥</span> <span>Manage Users</span>
+            </a>
+            <a href="{% url 'admin_manage_products' %}" class="nav-link flex items-center space-x-3 px-4 py-3 rounded-xl text-slate-400 font-medium">
+                <span>📦</span> <span>Manage Products</span>
+            </a>
+            <a href="{% url 'admin_manage_orders' %}" class="nav-link flex items-center space-x-3 px-4 py-3 rounded-xl text-slate-400 font-medium">
+                <span>📝</span> <span>System Orders</span>
+            </a>
+            <a href="/admin/" class="nav-link flex items-center space-x-3 px-4 py-3 rounded-xl text-slate-400 font-medium border-t border-slate-800 mt-4 pt-4">
+                <span>🗄️</span> <span>Django Raw CRUD</span>
+            </a>
+        </nav>
+
+        <div class="mt-auto pt-6 border-t border-slate-800">
+            <div class="flex items-center space-x-3 px-2 mb-4">
+                <div class="w-8 h-8 rounded-full bg-slate-800 flex items-center justify-center text-xs">👤</div>
+                <div class="flex-1 overflow-hidden">
+                    <p class="text-xs font-bold text-white truncate">{{ request.user.username }}</p>
+                    <p class="text-[10px] text-emerald-500 font-bold uppercase">Root Admin</p>
+                </div>
+            </div>
+            <form action="{% url 'logout' %}" method="post">
+                {% csrf_token %}
+                <button type="submit" class="w-full flex items-center justify-center space-x-2 bg-rose-500/10 hover:bg-rose-500 text-rose-500 hover:text-white py-3 rounded-xl transition-all font-bold text-sm">
+                    <span>🚪</span> <span>Sign Out</span>
+                </button>
+            </form>
+        </div>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="flex-1 p-8 lg:p-12 overflow-y-auto">
+        <header class="flex justify-between items-center mb-12">
+            <div>
+                <h2 class="text-4xl font-black tracking-tight text-white">Infrastructure Hub</h2>
+                <p class="text-slate-500 mt-1 font-medium">Centralized control for all microservices.</p>
+            </div>
+            <div class="flex space-x-4">
+                <div class="px-4 py-2 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-xs font-black flex items-center">
+                    <span class="w-2 h-2 bg-emerald-500 rounded-full mr-2 animate-pulse"></span>
+                    SYSTEM HEALTH: STABLE
+                </div>
+            </div>
+        </header>
+
+        <!-- Stats Grid -->
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-12">
+            <div class="admin-glass p-8 rounded-[2rem]">
+                <p class="text-slate-500 text-xs font-black uppercase tracking-widest mb-4">Total Users</p>
+                <h3 class="text-5xl font-black text-white">{{ stats.users_count }}</h3>
+                <p class="text-emerald-500 text-xs font-bold mt-2">Active in DB</p>
+            </div>
+            <div class="admin-glass p-8 rounded-[2rem]">
+                <p class="text-slate-500 text-xs font-black uppercase tracking-widest mb-4">Staff Members</p>
+                <h3 class="text-5xl font-black text-white">{{ stats.staff_count }}</h3>
+                <p class="text-emerald-500 text-xs font-bold mt-2">Access Granted</p>
+            </div>
+            <div class="admin-glass p-8 rounded-[2rem]">
+                <p class="text-slate-500 text-xs font-black uppercase tracking-widest mb-4">System Status</p>
+                <h3 class="text-5xl font-black text-white">ACTIVE</h3>
+                <p class="text-emerald-500 text-xs font-bold mt-2">All Nodes Operational</p>
+            </div>
+        </div>
+
+        <!-- Quick Actions -->
+        <h3 class="text-xl font-black text-white mb-6">Administrative Control</h3>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <a href="{% url 'admin_manage_users' %}" class="admin-glass p-6 rounded-3xl hover:border-emerald-500/40 transition group border border-transparent">
+                <div class="w-12 h-12 bg-emerald-500/10 rounded-2xl flex items-center justify-center text-2xl mb-4 group-hover:scale-110 transition">👥</div>
+                <h4 class="text-lg font-bold text-white mb-1">User CRUD</h4>
+                <p class="text-slate-500 text-xs leading-relaxed">Manage accounts, permissions, and security levels.</p>
+            </a>
+            <a href="{% url 'admin_manage_products' %}" class="admin-glass p-6 rounded-3xl hover:border-cyan-500/40 transition group border border-transparent">
+                <div class="w-12 h-12 bg-cyan-500/10 rounded-2xl flex items-center justify-center text-2xl mb-4 group-hover:scale-110 transition">📦</div>
+                <h4 class="text-lg font-bold text-white mb-1">Product CRUD</h4>
+                <p class="text-slate-500 text-xs leading-relaxed">Inventory management across the microservices network.</p>
+            </a>
+            <a href="{% url 'admin_manage_orders' %}" class="admin-glass p-6 rounded-3xl hover:border-purple-500/40 transition group border border-transparent">
+                <div class="w-12 h-12 bg-purple-500/10 rounded-2xl flex items-center justify-center text-2xl mb-4 group-hover:scale-110 transition">📝</div>
+                <h4 class="text-lg font-bold text-white mb-1">Order Overview</h4>
+                <p class="text-slate-500 text-xs leading-relaxed">Global tracking and transaction auditing.</p>
+            </a>
+        </div>
+    </main>
+</body>
+</html>

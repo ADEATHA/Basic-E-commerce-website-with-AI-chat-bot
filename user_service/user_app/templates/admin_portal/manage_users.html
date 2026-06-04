@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Manage Users | Admin Portal</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Outfit', sans-serif; background-color: #020617; color: #f8fafc; }
+        .admin-glass { background: rgba(15, 23, 42, 0.7); backdrop-filter: blur(20px); border: 1px solid rgba(16, 185, 129, 0.1); }
+    </style>
+</head>
+<body class="min-h-screen bg-slate-950 p-8 lg:p-12">
+    <div class="max-w-7xl mx-auto">
+        <header class="flex justify-between items-center mb-12">
+            <div class="flex items-center space-x-4">
+                <a href="{% url 'admin_dashboard' %}" class="w-10 h-10 rounded-full bg-slate-800 flex items-center justify-center hover:bg-slate-700 transition">←</a>
+                <div>
+                    <h1 class="text-3xl font-black text-white">User Management</h1>
+                    <p class="text-slate-500 text-sm">Review and modify system access levels.</p>
+                </div>
+            </div>
+            <a href="{% url 'admin_add_user' %}" class="px-5 py-2.5 rounded-xl bg-emerald-500 hover:bg-emerald-600 font-bold text-slate-950 shadow-lg shadow-emerald-500/20 transition text-sm">
+                + Add New User
+            </a>
+        </header>
+
+        {% if messages %}
+            {% for message in messages %}
+            <div class="p-4 rounded-xl mb-6 bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 text-xs font-bold">
+                {{ message }}
+            </div>
+            {% endfor %}
+        {% endif %}
+
+        <div class="admin-glass rounded-[2rem] overflow-hidden">
+            <table class="w-full text-left border-collapse">
+                <thead>
+                    <tr class="bg-slate-900/50">
+                        <th class="px-6 py-4 text-xs font-black text-slate-500 uppercase tracking-widest">User Info</th>
+                        <th class="px-6 py-4 text-xs font-black text-slate-500 uppercase tracking-widest text-center">Staff Status</th>
+                        <th class="px-6 py-4 text-xs font-black text-slate-500 uppercase tracking-widest text-center">Admin Status</th>
+                        <th class="px-6 py-4 text-xs font-black text-slate-500 uppercase tracking-widest text-right">Actions</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-slate-800/50">
+                    {% for u in users %}
+                    <tr class="hover:bg-white/[0.02] transition">
+                        <td class="px-6 py-4">
+                            <div class="flex items-center space-x-3">
+                                <div class="w-10 h-10 rounded-full bg-slate-800 flex items-center justify-center font-bold text-emerald-500">
+                                    {{ u.username|make_list|first|upper }}
+                                </div>
+                                <div>
+                                    <p class="font-bold text-white">{{ u.username }}</p>
+                                    <p class="text-[10px] text-slate-500 italic">ID: #{{ u.id }} | Joined: {{ u.date_joined|date:"M d, Y" }}</p>
+                                </div>
+                            </div>
+                        </td>
+                        <td class="px-6 py-4 text-center">
+                            <a href="{% url 'admin_toggle_user_role' u.id 'staff' %}" 
+                               class="inline-block px-3 py-1 rounded-full text-[10px] font-black tracking-tighter transition
+                               {% if u.is_staff %} bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 {% else %} bg-slate-800 text-slate-500 {% endif %}">
+                                {% if u.is_staff %} ACTIVE STAFF {% else %} NO ACCESS {% endif %}
+                            </a>
+                        </td>
+                        <td class="px-6 py-4 text-center">
+                            <a href="{% url 'admin_toggle_user_role' u.id 'admin' %}" 
+                               class="inline-block px-3 py-1 rounded-full text-[10px] font-black tracking-tighter transition
+                               {% if u.is_superuser %} bg-cyan-500/10 text-cyan-400 border border-cyan-500/20 {% else %} bg-slate-800 text-slate-500 {% endif %}">
+                                {% if u.is_superuser %} ROOT ADMIN {% else %} NO ACCESS {% endif %}
+                            </a>
+                        </td>
+                        <td class="px-6 py-4 text-right">
+                            {% if u != request.user %}
+                            <a href="{% url 'admin_delete_user' u.id %}" onclick="return confirm('Are you sure you want to delete user {{ u.username }}?')" 
+                               class="inline-block p-2 rounded-lg bg-rose-500/10 text-rose-500 hover:bg-rose-500 hover:text-white transition">
+                                🗑️
+                            </a>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <script>
+        function confirmDelete(id, name) {
+            if (confirm(`Are you sure you want to delete user "${name}"? This action cannot be undone.`)) {
+                window.location.href = `/system-admin/users/delete/${id}/`;
+            }
+        }
+    </script>
+</body>
+</html>

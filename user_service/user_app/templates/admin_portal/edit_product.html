@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Edit Product | Admin Portal</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Outfit', sans-serif; background-color: #020617; color: #f8fafc; }
+        .admin-glass { background: rgba(15, 23, 42, 0.7); backdrop-filter: blur(20px); border: 1px solid rgba(16, 185, 129, 0.1); }
+        .input-field { background: rgba(15, 23, 42, 0.5); border: 1px solid rgba(255, 255, 255, 0.1); transition: all 0.3s; }
+        .input-field:focus { border-color: #06b6d4; box-shadow: 0 0 0 1px #06b6d4; }
+    </style>
+</head>
+<body class="min-h-screen bg-slate-950 p-8 lg:p-12">
+    <div class="max-w-3xl mx-auto">
+        <header class="flex items-center space-x-4 mb-12">
+            <a href="{% url 'admin_manage_products' %}" class="w-10 h-10 rounded-full bg-slate-800 flex items-center justify-center hover:bg-slate-700 transition">←</a>
+            <div>
+                <h1 class="text-3xl font-black text-white">Edit Product</h1>
+                <p class="text-slate-500 text-sm">Modifying item: <span class="text-cyan-400 font-bold">#{{ product.id }}</span></p>
+            </div>
+        </header>
+
+        <div class="admin-glass p-8 lg:p-12 rounded-[2.5rem] shadow-2xl">
+            <form method="post" class="space-y-8">
+                {% csrf_token %}
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                    <div class="space-y-2">
+                        <label class="text-xs font-bold text-slate-500 uppercase tracking-wider ml-1">Product Name</label>
+                        <input type="text" name="name" value="{{ product.name }}" required class="w-full input-field rounded-2xl px-5 py-4 text-white focus:outline-none">
+                    </div>
+                    <div class="space-y-2">
+                        <label class="text-xs font-bold text-slate-500 uppercase tracking-wider ml-1">Category</label>
+                        <select name="category" required class="w-full input-field rounded-2xl px-5 py-4 text-white focus:outline-none">
+                            <option value="Mobile" {% if product.category_name == 'Mobile' %}selected{% endif %}>Mobile</option>
+                            <option value="Computer" {% if product.category_name == 'Computer' %}selected{% endif %}>Computer</option>
+                            <option value="Clothes" {% if product.category_name == 'Clothes' %}selected{% endif %}>Clothes</option>
+                            <option value="Shoes" {% if product.category_name == 'Shoes' %}selected{% endif %}>Shoes</option>
+                            <option value="Watches" {% if product.category_name == 'Watches' %}selected{% endif %}>Watches</option>
+                            <option value="Cosmetics" {% if product.category_name == 'Cosmetics' %}selected{% endif %}>Cosmetics</option>
+                            <option value="Furniture" {% if product.category_name == 'Furniture' %}selected{% endif %}>Furniture</option>
+                            <option value="Kitchenware" {% if product.category_name == 'Kitchenware' %}selected{% endif %}>Kitchenware</option>
+                            <option value="Books" {% if product.category_name == 'Books' %}selected{% endif %}>Books</option>
+                            <option value="Sportswear" {% if product.category_name == 'Sportswear' %}selected{% endif %}>Sportswear</option>
+                            <option value="Accessories" {% if product.category_name == 'Accessories' %}selected{% endif %}>Accessories</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="space-y-2">
+                    <label class="text-xs font-bold text-slate-500 uppercase tracking-wider ml-1">Description</label>
+                    <textarea name="description" rows="4" required class="w-full input-field rounded-2xl px-5 py-4 text-white focus:outline-none">{{ product.description }}</textarea>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                    <div class="space-y-2">
+                        <label class="text-xs font-bold text-slate-500 uppercase tracking-wider ml-1">Price ($)</label>
+                        <input type="number" step="0.01" name="price" value="{{ product.price }}" required class="w-full input-field rounded-2xl px-5 py-4 text-white focus:outline-none">
+                    </div>
+                    <div class="space-y-2">
+                        <label class="text-xs font-bold text-slate-500 uppercase tracking-wider ml-1">Stock Quantity</label>
+                        <input type="number" name="stock" value="{{ product.stock }}" required class="w-full input-field rounded-2xl px-5 py-4 text-white focus:outline-none">
+                    </div>
+                </div>
+
+                <div class="space-y-2">
+                    <label class="text-xs font-bold text-slate-500 uppercase tracking-wider ml-1">Image URL</label>
+                    <input type="url" name="image_url" value="{{ product.image_url }}" class="w-full input-field rounded-2xl px-5 py-4 text-white focus:outline-none">
+                </div>
+
+                <div class="pt-6">
+                    <button type="submit" class="w-full bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-black py-5 rounded-[2rem] transition-all transform active:scale-95 shadow-xl shadow-cyan-500/20">
+                        SAVE CHANGES
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</body>
+</html>

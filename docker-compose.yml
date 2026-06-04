@@ -1,0 +1,221 @@
+version: '3.8'
+
+services:
+  mysql-db:
+    image: mysql:8
+    container_name: mysql_db
+    command: --mysql-native-password=ON
+    environment:
+      MYSQL_ROOT_PASSWORD: "root"
+    volumes:
+      - ./mysql-init.sql:/docker-entrypoint-initdb.d/init.sql
+      - mysql_data:/var/lib/mysql
+    ports:
+      - "3307:3306"
+    healthcheck:
+      test: [ "CMD", "mysqladmin", "ping", "-h", "localhost" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  postgres-db:
+    image: postgres:15
+    container_name: postgres_db
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: password
+    volumes:
+      - ./postgres-init.sql:/docker-entrypoint-initdb.d/init.sql
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - "5433:5432"
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U postgres" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  rabbitmq:
+    image: rabbitmq:3-management
+    container_name: rabbitmq
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    healthcheck:
+      test: ["CMD", "rabbitmq-diagnostics", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  nginx-gateway:
+    image: nginx:1.27-alpine
+    container_name: nginx_gateway
+    ports:
+      - "8100:80"
+    volumes:
+      - ./api-gateway/nginx.conf:/etc/nginx/nginx.conf:ro
+    depends_on:
+      - user-service
+      - product
+      - ai_service
+      - cart
+      - order
+      - payment
+      - shipping
+
+  user-service:
+    build: ./user_service
+    container_name: user_service
+    environment:
+      - PYTHONPATH=/app
+      - GATEWAY_BASE=http://nginx-gateway
+    command: sh -c "python manage.py makemigrations && python manage.py migrate && python manage.py runserver 0.0.0.0:8000"
+    ports:
+      - "8102:8000"
+    volumes:
+      - ./user_service:/app
+    depends_on:
+      mysql-db:
+        condition: service_healthy
+
+  product:
+    build: .
+    container_name: product_service
+    environment:
+      - PYTHONPATH=/app
+    command: sh -c "python product_service/manage.py makemigrations && python product_service/manage.py migrate && python product_service/manage.py runserver 0.0.0.0:8000"
+    ports:
+      - "8106:8000"
+    volumes:
+      - .:/app
+    depends_on:
+      postgres-db:
+        condition: service_healthy
+
+  ai_service:
+    build: ./ai_service
+    container_name: ai_service
+    ports:
+      - "8005:8005"
+    volumes:
+      - ./ai_service:/app
+    environment:
+      - NEO4J_URI=bolt://neo4j:7687
+      - NEO4J_USER=neo4j
+      - NEO4J_PASSWORD=password
+    depends_on:
+      mysql-db:
+        condition: service_healthy
+      postgres-db:
+        condition: service_healthy
+      neo4j:
+        condition: service_healthy
+
+  cart:
+    build: ./cart_service
+    container_name: cart_service
+    ports:
+      - "8107:8000"
+    environment:
+      - DB_HOST=mysql-db
+      - DB_PORT=3306
+      - DB_USER=root
+      - DB_PASSWORD=root
+      - DB_NAME=ms_cart
+    volumes:
+      - ./cart_service:/app
+      - cart_data:/data
+    command: sh -c "python manage.py makemigrations && python manage.py migrate --fake-initial && python manage.py runserver 0.0.0.0:8000"
+    depends_on:
+      mysql-db:
+        condition: service_healthy
+
+  order:
+    build: ./order_service
+    container_name: order_service
+    ports:
+      - "8108:8000"
+    environment:
+      - DB_HOST=postgres-db
+      - DB_PORT=5432
+      - DB_USER=postgres
+      - DB_PASSWORD=password
+      - DB_NAME=ms_order
+      - RABBITMQ_HOST=rabbitmq
+    volumes:
+      - ./order_service:/app
+      - order_data:/data
+    depends_on:
+      postgres-db:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+
+  payment:
+    build: ./payment_service
+    container_name: payment_service
+    ports:
+      - "8109:8000"
+    environment:
+      - DB_HOST=mysql-db
+      - DB_PORT=3306
+      - DB_USER=root
+      - DB_PASSWORD=root
+      - DB_NAME=ms_payment
+      - RABBITMQ_HOST=rabbitmq
+    volumes:
+      - ./payment_service:/app
+      - payment_data:/data
+    command: sh -c "python manage.py makemigrations && python manage.py migrate --fake-initial && python manage.py runserver 0.0.0.0:8000"
+    depends_on:
+      mysql-db:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+
+  shipping:
+    build: ./shipping_service
+    container_name: shipping_service
+    ports:
+      - "8110:8000"
+    environment:
+      - DB_HOST=mysql-db
+      - DB_PORT=3306
+      - DB_USER=root
+      - DB_PASSWORD=root
+      - DB_NAME=ms_shipping
+      - RABBITMQ_HOST=rabbitmq
+    volumes:
+      - ./shipping_service:/app
+      - shipping_data:/data
+    command: sh -c "python manage.py makemigrations && python manage.py migrate --fake-initial && python manage.py runserver 0.0.0.0:8000"
+    depends_on:
+      mysql-db:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+
+  neo4j:
+    image: neo4j:5.14-community
+    container_name: neo4j_db
+    ports:
+      - "7474:7474"
+      - "7687:7687"
+    environment:
+      - NEO4J_AUTH=neo4j/password
+    volumes:
+      - neo4j_data:/data
+    healthcheck:
+      test: ["CMD-SHELL", "wget --no-verbose --tries=1 --spider localhost:7474 || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  mysql_data:
+  postgres_data:
+  neo4j_data:
+  cart_data:
+  order_data:
+  payment_data:
+  shipping_data:

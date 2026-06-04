@@ -1,0 +1,610 @@
+{% extends 'customer/base.html' %}
+{% load static %}
+{% block title %}Shop All | MegaStore{% endblock %}
+{% block content %}
+<div class="space-y-12">
+    <!-- Carousel Section -->
+    <div class="relative group overflow-hidden rounded-[2rem] shadow-2xl bg-stone-900 h-[400px]">
+        <div id="carousel" class="flex transition-transform duration-700 ease-in-out h-full">
+            <!-- Slide 1 -->
+            <div class="min-w-full h-full relative">
+                <img src="{% static 'tech_banner.png' %}" class="w-full h-full object-cover opacity-60">
+                <div
+                    class="absolute inset-0 flex flex-col justify-center items-start p-16 text-white bg-gradient-to-r from-black/60 to-transparent">
+                    <span
+                        class="bg-orange-600 px-4 py-1 rounded-full text-xs font-bold uppercase mb-4 tracking-widest">New
+                        Arrival</span>
+                    <h2 class="text-5xl font-extrabold mb-4 leading-tight">Next-Gen Tech<br>Is Finally Here.</h2>
+                    <p class="text-xl text-stone-300 max-w-md mb-8">Experience the future with our latest collection of
+                        smartphones and ultra-thin laptops.</p>
+                    <button
+                        class="bg-white text-stone-900 px-8 py-3 rounded-xl font-bold hover:bg-orange-600 hover:text-white transition transform hover:-translate-y-1 shadow-lg">Explore
+                        Electronics</button>
+                </div>
+            </div>
+            <!-- Slide 2 -->
+            <div class="min-w-full h-full relative">
+                <img src="{% static 'fashion_banner.png' %}" class="w-full h-full object-cover opacity-60">
+                <div
+                    class="absolute inset-0 flex flex-col justify-center items-start p-16 text-white bg-gradient-to-r from-black/60 to-transparent">
+                    <span
+                        class="bg-emerald-600 px-4 py-1 rounded-full text-xs font-bold uppercase mb-4 tracking-widest">Style
+                        Guide</span>
+                    <h2 class="text-5xl font-extrabold mb-4 leading-tight">Sustainable<br>Modern Fashion.</h2>
+                    <p class="text-xl text-stone-300 max-w-md mb-8">Join the movement with our organic cotton collection
+                        and minimalist premium leather assets.</p>
+                    <button
+                        class="bg-white text-stone-900 px-8 py-3 rounded-xl font-bold hover:bg-emerald-600 hover:text-white transition transform hover:-translate-y-1 shadow-lg">Shop
+                        Fashion</button>
+                </div>
+            </div>
+            <!-- Slide 3 -->
+            <div class="min-w-full h-full relative">
+                <img src="{% static 'sale_banner.png' %}" class="w-full h-full object-cover opacity-60">
+                <div
+                    class="absolute inset-0 flex flex-col justify-center items-start p-16 text-white bg-gradient-to-r from-black/60 to-transparent">
+                    <span
+                        class="bg-rose-600 px-4 py-1 rounded-full text-xs font-bold uppercase mb-4 tracking-widest">Limited
+                        Offer</span>
+                    <h2 class="text-5xl font-extrabold mb-4 leading-tight">Mega Season Sale<br>Up to 50% Off.</h2>
+                    <p class="text-xl text-stone-300 max-w-md mb-8">Don't miss out on the biggest deals of the year.
+                        Limited stock available globally.</p>
+                    <button
+                        class="bg-rose-600 text-white px-8 py-3 rounded-xl font-bold hover:bg-rose-700 transition transform hover:-translate-y-1 shadow-lg">Claim
+                        Deals</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Carousel Nav -->
+        <button onclick="moveCarousel(-1)"
+            class="absolute left-6 top-1/2 -translate-y-1/2 w-12 h-12 rounded-full bg-white/10 backdrop-blur-md border border-white/20 text-white flex items-center justify-center hover:bg-white hover:text-stone-900 transition opacity-0 group-hover:opacity-100">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M15 19l-7-7 7-7"></path>
+            </svg>
+        </button>
+        <button onclick="moveCarousel(1)"
+            class="absolute right-6 top-1/2 -translate-y-1/2 w-12 h-12 rounded-full bg-white/10 backdrop-blur-md border border-white/20 text-white flex items-center justify-center hover:bg-white hover:text-stone-900 transition opacity-0 group-hover:opacity-100">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 5l7 7-7 7"></path>
+            </svg>
+        </button>
+        <div class="absolute bottom-8 left-1/2 -translate-x-1/2 flex gap-3">
+            <div onclick="setCarousel(0)"
+                class="carousel-dot w-8 h-1.5 rounded-full bg-white/20 cursor-pointer transition-all active-dot"></div>
+            <div onclick="setCarousel(1)"
+                class="carousel-dot w-8 h-1.5 rounded-full bg-white/20 cursor-pointer transition-all"></div>
+            <div onclick="setCarousel(2)"
+                class="carousel-dot w-8 h-1.5 rounded-full bg-white/20 cursor-pointer transition-all"></div>
+        </div>
+    </div>
+
+    <!-- Search & Filter Bar -->
+    <div class="bg-white p-6 rounded-3xl border border-stone-200 shadow-sm flex flex-wrap gap-4 items-center">
+        <!-- Search bar -->
+        <div class="relative flex-grow min-w-[300px]">
+            <span class="absolute left-4 top-1/2 -translate-y-1/2 text-stone-400">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                </svg>
+            </span>
+            <input type="text" id="searchInput" placeholder="Search by name or brand..." oninput="applyFilters()"
+                class="w-full pl-12 pr-12 py-3 bg-stone-50 border border-stone-200 rounded-xl focus:outline-none focus:border-orange-500 focus:ring-1 focus:ring-orange-500 transition">
+            <button onclick="clearSearch()" id="clearSearchBtn"
+                class="absolute right-4 top-1/2 -translate-y-1/2 text-stone-400 hover:text-orange-600 hidden">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12">
+                    </path>
+                </svg>
+            </button>
+        </div>
+
+        <!-- Price inputs -->
+        <div class="flex items-center gap-2">
+            <input type="number" id="minPrice" placeholder="Min $" oninput="applyFilters()"
+                class="w-24 px-3 py-3 bg-stone-50 border border-stone-200 rounded-xl focus:outline-none focus:border-orange-500 text-sm">
+            <span class="text-stone-300">-</span>
+            <input type="number" id="maxPrice" placeholder="Max $" oninput="applyFilters()"
+                class="w-24 px-3 py-3 bg-stone-50 border border-stone-200 rounded-xl focus:outline-none focus:border-orange-500 text-sm">
+        </div>
+
+        <!-- Sort dropdown -->
+        <select id="sortSelect" onchange="applyFilters()"
+            class="px-4 py-3 bg-stone-50 border border-stone-200 rounded-xl focus:outline-none focus:border-orange-500 text-sm font-medium text-stone-700 cursor-pointer">
+            <option value="featured">Featured First</option>
+            <option value="low-high">Price: Low to High</option>
+            <option value="high-low">Price: High to Low</option>
+        </select>
+    </div>
+
+    {% if user.is_authenticated %}
+    <div id="ai-recommend-section" class="bg-gradient-to-r from-orange-50 to-amber-50 border border-orange-200 rounded-3xl p-6 shadow-sm">
+        <div class="flex items-center gap-3 mb-5">
+            <span class="text-3xl">🤖</span>
+            <div>
+                <h2 class="text-xl font-bold text-stone-800">Gợi ý dành riêng cho bạn</h2>
+                <p class="text-sm text-stone-500">Dựa trên lịch sử mua hàng của bạn (AI Collaborative Filtering)</p>
+            </div>
+            <span id="ai-segment-badge" class="ml-auto px-3 py-1 rounded-full text-xs font-bold hidden"></span>
+        </div>
+        <div id="ai-recs-grid" class="grid grid-cols-2 sm:grid-cols-4 gap-4">
+            <!-- skeleton loaders -->
+            <div class="animate-pulse bg-white rounded-2xl h-32 border border-orange-100"></div>
+            <div class="animate-pulse bg-white rounded-2xl h-32 border border-orange-100"></div>
+            <div class="animate-pulse bg-white rounded-2xl h-32 border border-orange-100"></div>
+            <div class="animate-pulse bg-white rounded-2xl h-32 border border-orange-100"></div>
+        </div>
+        <p id="ai-recs-empty" class="text-stone-400 text-sm text-center hidden py-4">Mua hàng lần đầu — xem top sản phẩm bán chạy bên dưới!</p>
+    </div>
+    {% endif %}
+
+    <!-- AI PICKS FROM CHATBOT (New) -->
+    <div id="ai-picks-section" class="hidden my-12 animate-in fade-in slide-in-from-bottom-4 duration-500">
+        <div class="flex items-center space-x-3 mb-6">
+            <div class="bg-indigo-600 p-2 rounded-lg shadow-lg">
+                <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
+            </div>
+            <h2 class="text-2xl font-black text-stone-900 tracking-tight">AI Picks For You</h2>
+            <button onclick="document.getElementById('ai-picks-section').classList.add('hidden')" class="ml-auto text-stone-400 hover:text-stone-600">✕ Close</button>
+        </div>
+        <div id="ai-picks-container" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+            <!-- Items injected by JS -->
+        </div>
+    </div>
+
+    <!-- Products Section -->
+    <div id="product-container">
+        {% for cat_name, items in categories.items %}
+        <div class="product-section mb-12">
+            <h2 class="text-2xl font-bold mb-6 flex items-center gap-2">
+                {% if cat_name == 'Mobile' %}📱
+                {% elif cat_name == 'Computer' %}💻
+                {% elif cat_name == 'Clothes' %}👕
+                {% elif cat_name == 'Shoes' %}👟
+                {% elif cat_name == 'Cosmetics' %}💄
+                {% elif cat_name == 'Jewelry' %}💍
+                {% elif cat_name == 'Watches' %}⌚
+                {% elif cat_name == 'Kitchenware' %}🍳
+                {% else %}🛍️{% endif %}
+                {{ cat_name }}
+            </h2>
+            <div class="product-grid grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 collapsed-grid">
+                {% for item in items %}
+                <div class="product-card bg-white p-5 rounded-2xl border border-stone-200 shadow-sm hover:shadow-xl transition group"
+                    data-name="{{ item.name|lower }}" data-brand="{{ item.brand|lower }}" data-price="{{ item.price }}">
+                    <div class="aspect-square bg-stone-100 rounded-xl mb-4 flex items-center justify-center text-4xl">
+                        {% if item.image_url %}<img src="{{ item.image_url }}"
+                            class="object-cover rounded-xl w-full h-full">
+                        {% else %}
+                            {% if cat_name == 'Mobile' %}📱
+                            {% elif cat_name == 'Computer' %}💻
+                            {% elif cat_name == 'Clothes' %}👕
+                            {% else %}🛍️{% endif %}
+                        {% endif %}
+                    </div>
+                    <h3 class="font-bold text-lg group-hover:text-orange-600 transition">{{ item.brand }} {{ item.name }}</h3>
+                    <p class="text-stone-500 text-sm mb-4">Stock: {{ item.stock }}</p>
+                    <div class="flex justify-between items-center">
+                        <span class="font-bold text-xl product-price">${{ item.price }}</span>
+                        <button
+                            onclick="addToCart('{{ item.id }}', '{{ item.name }}', '{{ item.brand }}', '{{ item.price }}', '{{ cat_name }}')"
+                            class="bg-stone-900 text-white px-4 py-2 rounded-lg hover:bg-orange-600 transition text-sm">
+                            Add to Cart
+                        </button>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            
+            <div class="text-center mt-6 expand-btn-wrap">
+                <button onclick="toggleGrid(this)" class="bg-stone-100 hover:bg-orange-100 text-stone-700 hover:text-orange-600 font-semibold py-2 px-8 rounded-full transition text-sm">
+                    Xem thêm ▼
+                </button>
+            </div>
+            <p class="no-results-msg text-stone-400 text-sm py-8 text-center hidden">No matching items found.</p>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+</div>
+
+<!-- ═══════════════ AI CHATBOT WIDGET ═══════════════ -->
+<div id="chat-widget" style="position:fixed;bottom:28px;right:28px;z-index:9999;font-family:inherit">
+
+    <!-- Toggle Button -->
+    <button id="chat-toggle"
+        onclick="toggleChat()"
+        style="width:60px;height:60px;border-radius:50%;background:linear-gradient(135deg,#f97316,#ea580c);border:none;cursor:pointer;box-shadow:0 8px 25px rgba(249,115,22,.45);display:flex;align-items:center;justify-content:center;transition:transform .2s"
+        onmouseover="this.style.transform='scale(1.1)'" onmouseout="this.style.transform='scale(1)'">
+        <svg id="chat-icon-open" width="28" height="28" fill="none" stroke="white" stroke-width="2" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z"/>
+        </svg>
+        <svg id="chat-icon-close" width="28" height="28" fill="none" stroke="white" stroke-width="2" viewBox="0 0 24 24" style="display:none">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/>
+        </svg>
+    </button>
+
+    <!-- Chat Window -->
+    <div id="chat-window"
+        style="display:none;position:absolute;bottom:76px;right:0;width:360px;background:white;border-radius:20px;box-shadow:0 20px 60px rgba(0,0,0,.18);border:1px solid #e5e7eb;overflow:hidden;flex-direction:column">
+
+        <!-- Header -->
+        <div style="background:linear-gradient(135deg,#f97316,#ea580c);padding:16px 20px;display:flex;align-items:center;gap:10px">
+            <div style="width:36px;height:36px;background:rgba(255,255,255,.2);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:18px">🤖</div>
+            <div>
+                <div style="color:white;font-weight:700;font-size:15px">MegaStore AI</div>
+                <div style="color:rgba(255,255,255,.8);font-size:12px">Tư vấn sản phẩm 24/7</div>
+            </div>
+            <div style="margin-left:auto;width:8px;height:8px;background:#4ade80;border-radius:50%"></div>
+        </div>
+
+        <!-- Messages -->
+        <div id="chat-messages"
+            style="height:300px;overflow-y:auto;padding:16px;display:flex;flex-direction:column;gap:10px;background:#f9fafb">
+            <div style="background:white;border-radius:12px 12px 12px 4px;padding:12px 14px;font-size:13px;color:#374151;box-shadow:0 1px 4px rgba(0,0,0,.07);max-width:85%">
+                Xin chào! 👋 Tôi có thể giúp bạn tìm sản phẩm phù hợp. Hỏi tôi bất cứ điều gì!
+            </div>
+        </div>
+
+        <!-- Mode Toggle (New) -->
+        <div style="padding:10px 16px;background:white;border-top:1px solid #f3f4f6;display:flex;align-items:center;justify-content:space-between">
+            <span style="font-size:11px;font-weight:600;color:#6b7280 uppercase tracking-wider">Chế độ AI:</span>
+            <div style="display:flex;background:#f3f4f6;padding:3px;border-radius:10px;gap:2px">
+                <button id="mode-smart" onclick="setChatMode('smart')" 
+                    style="font-size:10px;padding:4px 10px;border-radius:8px;border:none;cursor:pointer;background:#f97316;color:white;font-weight:bold;transition:all .2s">Smart LLM</button>
+                <button id="mode-predict" onclick="setChatMode('predict')" 
+                    style="font-size:10px;padding:4px 10px;border-radius:8px;border:none;cursor:pointer;background:transparent;color:#6b7280;font-weight:bold;transition:all .2s">Model-Best AI</button>
+            </div>
+        </div>
+
+        <!-- Input -->
+        <div style="padding:12px;background:white;border-top:1px solid #f3f4f6;display:flex;gap:8px">
+            <input id="chat-input" type="text" placeholder="Hỏi về sản phẩm..."
+                onkeydown="if(event.key==='Enter')sendChat()"
+                style="flex:1;padding:10px 14px;border:1.5px solid #e5e7eb;border-radius:12px;font-size:13px;outline:none;transition:border .2s"
+                onfocus="this.style.border='1.5px solid #f97316'" onblur="this.style.border='1.5px solid #e5e7eb'">
+            <button onclick="sendChat()"
+                style="width:42px;height:42px;border-radius:12px;background:#f97316;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0">
+                <svg width="18" height="18" fill="none" stroke="white" stroke-width="2.5" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"/>
+                </svg>
+            </button>
+        </div>
+    </div>
+</div>
+
+<style>
+    .active-dot {
+        background-color: #f97316 !important;
+        width: 3rem !important;
+    }
+    .collapsed-grid > div.product-card:nth-child(n+5) {
+        display: none !important;
+    }
+</style>
+
+<script>
+    // --- Carousel Logic ---
+    let currentSlide = 0;
+    const slides = 3;
+    const carousel = document.getElementById('carousel');
+    const dots = document.querySelectorAll('.carousel-dot');
+
+    function updateCarousel() {
+        carousel.style.transform = `translateX(-${currentSlide * 100}%)`;
+        dots.forEach((dot, idx) => {
+            if (idx === currentSlide) dot.classList.add('active-dot');
+            else dot.classList.remove('active-dot');
+        });
+    }
+
+    function moveCarousel(step) {
+        currentSlide = (currentSlide + step + slides) % slides;
+        updateCarousel();
+    }
+
+    function setCarousel(idx) {
+        currentSlide = idx;
+        updateCarousel();
+    }
+
+    // Auto-play
+    let autoPlay = setInterval(() => moveCarousel(1), 5000);
+    document.querySelector('.group').addEventListener('mouseenter', () => clearInterval(autoPlay));
+    document.querySelector('.group').addEventListener('mouseleave', () => autoPlay = setInterval(() => moveCarousel(1), 5000));
+
+    // --- Search & Filter Logic ---
+    function toggleGrid(btn) {
+        const wrap = btn.closest('.expand-btn-wrap');
+        const grid = wrap.previousElementSibling;
+        if (grid.classList.contains('collapsed-grid')) {
+            grid.classList.remove('collapsed-grid');
+            btn.textContent = 'Thu gọn ▲';
+        } else {
+            grid.classList.add('collapsed-grid');
+            btn.textContent = 'Xem thêm ▼';
+        }
+    }
+
+    function applyFilters() {
+        const query = document.getElementById('searchInput').value.toLowerCase();
+        const minPrice = parseFloat(document.getElementById('minPrice').value) || 0;
+        const maxPrice = parseFloat(document.getElementById('maxPrice').value) || Infinity;
+        const sortBy = document.getElementById('sortSelect').value;
+        const clearBtn = document.getElementById('clearSearchBtn');
+
+        clearBtn.classList.toggle('hidden', query === "");
+
+        const sections = document.querySelectorAll('.product-section');
+
+        sections.forEach(section => {
+            const list = section.querySelector('.product-grid');
+            const cards = Array.from(list.querySelectorAll('.product-card'));
+            
+            let visibleCount = 0;
+            cards.forEach(card => {
+                const name  = card.dataset.name.toLowerCase();
+                const brand = card.dataset.brand.toLowerCase();
+                const price = parseFloat(card.dataset.price);
+
+                const matchesSearch = name.includes(query) || brand.includes(query);
+                const matchesPrice  = price >= minPrice && price <= maxPrice;
+
+                if (matchesSearch && matchesPrice) {
+                    card.style.display = 'block';
+                    visibleCount++;
+                } else {
+                    card.style.display = 'none';
+                }
+            });
+
+            // Nếu không có sản phẩm nào, ẩn toàn bộ danh mục (section)
+            section.style.display = visibleCount > 0 ? 'block' : 'none';
+
+            // Handle sorting
+            if (sortBy !== 'featured') {
+                cards.sort((a, b) => {
+                    const priceA = parseFloat(a.dataset.price);
+                    const priceB = parseFloat(b.dataset.price);
+                    return sortBy === 'low-high' ? priceA - priceB : priceB - priceA;
+                });
+                cards.forEach(card => list.appendChild(card));
+            }
+
+            // Collapsed Grid & Button Logic
+            const filterActive = query !== "" || minPrice > 0 || maxPrice < Infinity || sortBy !== 'featured';
+            const btnWrap = section.querySelector('.expand-btn-wrap');
+            if (filterActive) {
+                list.classList.remove('collapsed-grid');
+                if (btnWrap) btnWrap.style.display = 'none';
+            } else {
+                list.classList.add('collapsed-grid');
+                if (btnWrap) {
+                    btnWrap.style.display = visibleCount > 4 ? 'block' : 'none';
+                    btnWrap.querySelector('button').textContent = 'Xem thêm ▼';
+                }
+            }
+
+            // No results message
+            section.querySelector('.no-results-msg').classList.toggle('hidden', visibleCount > 0);
+            section.querySelector('h2').classList.toggle('hidden', visibleCount === 0 && query !== "");
+        });
+    }
+
+    function clearSearch() {
+        document.getElementById('searchInput').value = "";
+        document.getElementById('minPrice').value = "";
+        document.getElementById('maxPrice').value = "";
+        document.getElementById('sortSelect').value = "featured";
+        applyFilters();
+    }
+
+    function addToCart(id, name, brand, price, type) {
+        const cart = JSON.parse(localStorage.getItem('cart') || '[]');
+        cart.push({ id, name, brand, price, type });
+        localStorage.setItem('cart', JSON.stringify(cart));
+        updateCartCount();
+        alert(`${brand} ${name} added to cart!`);
+    }
+
+    // ═══════════════════════════════════════════
+    // AI RECOMMENDATIONS
+    // ═══════════════════════════════════════════
+    const AI_BASE = window.location.port === '8100' 
+        ? '/api/ai' 
+        : `${window.location.protocol}//${window.location.hostname}:8100/api/ai`;
+    const USER_ID = '{{ user.id }}';
+
+    async function loadRecommendations() {
+        const section = document.getElementById('ai-recommend-section');
+        if (!section) return;
+
+        const grid = document.getElementById('ai-recs-grid');
+        const empty = document.getElementById('ai-recs-empty');
+        const badge = document.getElementById('ai-segment-badge');
+
+        try {
+            // Load recommendations first (critical)
+            const recRes = await fetch(`${AI_BASE}/recommend`, {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({user_id: USER_ID, top_n: 4})
+            });
+
+            if (!recRes.ok) {
+                if (recRes.status === 502 || recRes.status === 504) {
+                    console.log("AI Service starting... retrying in 3s");
+                    setTimeout(loadRecommendations, 3000);
+                    return;
+                }
+                throw new Error(`recommend HTTP ${recRes.status}`);
+            }
+            const recData = await recRes.json();
+            const recs = recData.recommendations || [];
+
+            if (recs.length === 0) {
+                grid.classList.add('hidden');
+                empty.classList.remove('hidden');
+            } else {
+                // Build product cards from all loaded product data
+                const allProducts = Array.from(document.querySelectorAll('.product-card')).map(c => {
+                    const img = c.querySelector('img');
+                    let defaultEmoji = '🛍️';
+                    if (!img) {
+                        const aspectDiv = c.querySelector('.aspect-square');
+                        if (aspectDiv) defaultEmoji = aspectDiv.textContent.trim() || '🛍️';
+                    }
+                    return {
+                        name: c.querySelector('h3').textContent.trim(),
+                        price: c.dataset.price,
+                        media: img ? `<img src="${img.src}" class="w-12 h-12 object-cover rounded-full mb-2 border border-stone-200">` : `<div class="text-3xl mb-2">${defaultEmoji}</div>`
+                    };
+                });
+
+                grid.innerHTML = recs.map(recName => {
+                    const match = allProducts.find(p => p.name.toLowerCase().includes(recName.toLowerCase().split(' ')[0]));
+                    const mediaHTML = match ? match.media : '<div class="text-3xl mb-2">🛍️</div>';
+                    const price = match ? `$${match.price}` : '';
+                    return `<div class="ai-rec-card bg-white rounded-2xl border border-orange-100 p-4 flex flex-col items-center text-center cursor-pointer hover:shadow-md transition"
+                        onclick="document.getElementById('searchInput').value='${recName.split(' ')[0]}';applyFilters()">
+                        ${mediaHTML}
+                        <div class="font-semibold text-sm text-stone-800 leading-tight">${recName}</div>
+                        ${price ? `<div class="text-orange-600 font-bold text-sm mt-1">${price}</div>` : ''}
+                        <div class="text-xs text-stone-400 mt-1">AI Pick</div>
+                    </div>`;
+                }).join('');
+
+                grid.classList.remove('hidden');
+                empty.classList.add('hidden');
+            }
+        } catch (e) {
+            // Only show empty state, do not hide whole section to avoid flicker/disappear
+            grid.classList.add('hidden');
+            empty.classList.remove('hidden');
+        }
+
+        // Load segment badge independently (non-critical)
+        try {
+            const segRes = await fetch(`${AI_BASE}/segment`, {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({user_id: USER_ID})
+            });
+            if (!segRes.ok) return;
+
+            const segData = await segRes.json();
+            if (segData.segment && badge) {
+                const colors = {VIP:'#FFD700',Gold:'#fbbf24',Regular:'#4CAF50',New:'#94a3b8'};
+                const icons  = {VIP:'💎',Gold:'🥇',Regular:'⭐',New:'🆕'};
+                badge.textContent = `${icons[segData.segment]||''} ${segData.segment} (${segData.monetary}$)`;
+                badge.style.background = colors[segData.segment] || '#ccc';
+                badge.style.color = (segData.segment === 'VIP' || segData.segment === 'Gold') ? '#333' : 'white';
+                badge.classList.remove('hidden');
+            }
+        } catch (_) {
+            // silently ignore segment errors
+        }
+    }
+
+    // ═══════════════════════════════════════════
+    // AI CHATBOT
+    // ═══════════════════════════════════════════
+    let chatOpen = false;
+
+    function toggleChat() {
+        chatOpen = !chatOpen;
+        const win = document.getElementById('chat-window');
+        win.style.display = chatOpen ? 'flex' : 'none';
+        document.getElementById('chat-icon-open').style.display  = chatOpen ? 'none' : 'block';
+        document.getElementById('chat-icon-close').style.display = chatOpen ? 'block' : 'none';
+        if (chatOpen) document.getElementById('chat-input').focus();
+    }
+
+    function appendMsg(text, isUser) {
+        const box = document.getElementById('chat-messages');
+        const div = document.createElement('div');
+        div.style.cssText = isUser
+            ? 'background:#f97316;color:white;border-radius:12px 12px 4px 12px;padding:10px 14px;font-size:13px;align-self:flex-end;max-width:85%'
+            : 'background:white;border-radius:12px 12px 12px 4px;padding:10px 14px;font-size:13px;color:#374151;box-shadow:0 1px 4px rgba(0,0,0,.07);max-width:85%';
+        div.textContent = text;
+        box.appendChild(div);
+        box.scrollTop = box.scrollHeight;
+        return div;
+    }
+
+    let chatMode = 'smart';
+
+    function setChatMode(mode) {
+        chatMode = mode;
+        const sBtn = document.getElementById('mode-smart');
+        const pBtn = document.getElementById('mode-predict');
+        if (mode === 'smart') {
+            sBtn.style.background = '#f97316'; sBtn.style.color = 'white';
+            pBtn.style.background = 'transparent'; pBtn.style.color = '#6b7280';
+        } else {
+            pBtn.style.background = '#f97316'; pBtn.style.color = 'white';
+            sBtn.style.background = 'transparent'; sBtn.style.color = '#6b7280';
+        }
+    }
+
+    async function sendChat() {
+        const input = document.getElementById('chat-input');
+        const query = input.value.trim();
+        if (!query) return;
+        input.value = '';
+        appendMsg(query, true);
+        const thinking = appendMsg('⏳ Đang xử lý...', false);
+        try {
+            const cart_items = JSON.parse(localStorage.getItem('cart') || '[]');
+            const res  = await fetch(`${AI_BASE}/chat`, {
+                method: 'POST',
+                headers: {'Content-Type':'application/json'},
+                body: JSON.stringify({query, user_id: USER_ID, cart_items: cart_items, mode: chatMode})
+            });
+            const data = await res.json();
+            thinking.textContent = data.answer || 'Xin lỗi, tôi chưa tìm được sản phẩm phù hợp.';
+            if (data.products && data.products.length > 0) {
+                renderAIPicks(data.products);
+            }
+        } catch(e) {
+            thinking.textContent = '⚠️ AI service đang khởi động. Vui lòng thử lại sau.';
+        }
+    }
+
+    function renderAIPicks(products) {
+        const section = document.getElementById('ai-picks-section');
+        const container = document.getElementById('ai-picks-container');
+        container.innerHTML = '';
+        section.classList.remove('hidden');
+
+        products.forEach(p => {
+            const card = document.createElement('div');
+            card.className = "bg-white p-5 rounded-3xl border border-indigo-100 shadow-sm hover:shadow-xl hover:-translate-y-1 transition duration-300 group ring-1 ring-indigo-50/50";
+            card.innerHTML = `
+                <div class="relative mb-4">
+                    <img src="${p.image_url}" class="w-full h-40 object-contain rounded-2xl bg-stone-50 group-hover:scale-105 transition-transform duration-500">
+                    <span class="absolute top-2 left-2 bg-indigo-600 text-white text-[10px] font-black px-2 py-1 rounded-lg uppercase tracking-wider">${p.brand}</span>
+                </div>
+                <h3 class="font-bold text-stone-900 group-hover:text-indigo-600 transition truncate text-sm leading-tight">${p.name}</h3>
+                <div class="flex justify-between items-center mt-4">
+                    <span class="text-lg font-black text-indigo-700 underline decoration-indigo-200 decoration-2 underline-offset-4">$${p.price}</span>
+                    <button onclick='addToCart("${p.id}", "${p.name}", "${p.brand}", "${p.price}", "${p.category_name}")' class="bg-indigo-600 hover:bg-black text-white p-2.5 rounded-xl transition shadow-lg shadow-indigo-500/20 active:scale-95">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4"></path></svg>
+                    </button>
+                </div>
+            `;
+            container.appendChild(card);
+        });
+        section.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
+
+    function sendQuick(text) {
+        document.getElementById('chat-input').value = text;
+        sendChat();
+    }
+
+    // Load AI recs on page start
+    document.addEventListener('DOMContentLoaded', loadRecommendations);
+</script>
+{% endblock %}

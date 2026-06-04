@@ -1,0 +1,178 @@
+[
+  {
+    "id": "P01",
+    "name": "iPhone 15 Pro",
+    "brand": "Apple",
+    "category": "Mobile",
+    "price": 999,
+    "text": "Titanium A17 Pro chip, 48MP Pro Camera, USB-C."
+  },
+  {
+    "id": "P02",
+    "name": "Galaxy S24 Ultra",
+    "brand": "Samsung",
+    "category": "Mobile",
+    "price": 1199,
+    "text": "Built-in S Pen, 200MP camera, Galaxy AI."
+  },
+  {
+    "id": "P03",
+    "name": "MacBook Air M3",
+    "brand": "Apple",
+    "category": "Computer",
+    "price": 1099,
+    "text": "M3 chip, 18h battery, Liquid Retina display."
+  },
+  {
+    "id": "P04",
+    "name": "ROG Zephyrus G14",
+    "brand": "ASUS",
+    "category": "Computer",
+    "price": 1599,
+    "text": "Gaming, Ryzen 9, RTX 4070, 165Hz QHD."
+  },
+  {
+    "id": "P05",
+    "name": "Classic White Tee",
+    "brand": "Uniqlo",
+    "category": "Clothes",
+    "price": 19,
+    "text": "100% premium cotton, relaxed fit, minimalism."
+  },
+  {
+    "id": "P06",
+    "name": "Slim Fit Jeans",
+    "brand": "Levi's",
+    "category": "Clothes",
+    "price": 59,
+    "text": "Classic 501 style, stretch denim, durable."
+  },
+  {
+    "id": "P07",
+    "name": "Air Max 270",
+    "brand": "Nike",
+    "category": "Shoes",
+    "price": 150,
+    "text": "Large Air unit, breathable mesh, lifestyle sneakers."
+  },
+  {
+    "id": "P08",
+    "name": "Ultraboost 22",
+    "brand": "Adidas",
+    "category": "Shoes",
+    "price": 180,
+    "text": "Responsive Boost cushioning, primeknit upper."
+  },
+  {
+    "id": "P09",
+    "name": "Submariner",
+    "brand": "Rolex",
+    "category": "Watches",
+    "price": 8500,
+    "text": "Luxury diver watch, 300m water resistance, ceramic bezel."
+  },
+  {
+    "id": "P10",
+    "name": "Apple Watch S9",
+    "brand": "Apple",
+    "category": "Watches",
+    "price": 399,
+    "text": "Advanced health tracking, brighter display, SiP S9."
+  },
+  {
+    "id": "P11",
+    "name": "Matte Lipstick",
+    "brand": "MAC",
+    "category": "Cosmetics",
+    "price": 25,
+    "text": "Iconic red shades, long-lasting matte finish."
+  },
+  {
+    "id": "P12",
+    "name": "Perfume No.5",
+    "brand": "Chanel",
+    "category": "Cosmetics",
+    "price": 160,
+    "text": "Classic floral scent, timeless elegance."
+  },
+  {
+    "id": "P13",
+    "name": "Modern Sofa",
+    "brand": "IKEA",
+    "category": "Furniture",
+    "price": 499,
+    "text": "Scandinavian design, 3-seater, durable fabric."
+  },
+  {
+    "id": "P14",
+    "name": "ErgoChair",
+    "brand": "Autonomous",
+    "category": "Furniture",
+    "price": 549,
+    "text": "Ergonomic mesh office chair, adjustable lumbar support."
+  },
+  {
+    "id": "P15",
+    "name": "Air Fryer",
+    "brand": "Ninja",
+    "category": "Kitchenware",
+    "price": 149,
+    "text": "5L capacity, low oil cooking, multiple presets."
+  },
+  {
+    "id": "P16",
+    "name": "Stand Mixer",
+    "brand": "KitchenAid",
+    "price": 399,
+    "category": "Kitchenware",
+    "text": "Heavy-duty mixer, 10 speeds, iconic design."
+  },
+  {
+    "id": "P17",
+    "name": "Clean Code",
+    "brand": "Uncle Bob",
+    "category": "Books",
+    "price": 45,
+    "text": "Essential guide for software craftsmanship."
+  },
+  {
+    "id": "P18",
+    "name": "Dune",
+    "brand": "Frank Herbert",
+    "category": "Books",
+    "price": 18,
+    "text": "Masterpiece of science fiction world-building."
+  },
+  {
+    "id": "P19",
+    "name": "Yoga Pants",
+    "brand": "Lululemon",
+    "category": "Sportswear",
+    "price": 118,
+    "text": "High-performance fabric, smooth feel, workout ready."
+  },
+  {
+    "id": "P20",
+    "name": "Windbreaker",
+    "brand": "The North Face",
+    "category": "Sportswear",
+    "price": 99,
+    "text": "Waterproof, lightweight, perfect for outdoors."
+  },
+  {
+    "id": "P21",
+    "name": "Wayfarer",
+    "brand": "Ray-Ban",
+    "category": "Accessories",
+    "price": 160,
+    "text": "Classic polarized sunglasses, iconic style."
+  },
+  {
+    "id": "P22",
+    "name": "Leather Wallet",
+    "brand": "Bellroy",
+    "category": "Accessories",
+    "price": 89,
+    "text": "Slim profile, premium eco-certified leather."
+  }
+]

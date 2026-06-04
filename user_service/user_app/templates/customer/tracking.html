@@ -1,0 +1,162 @@
+{% extends 'customer/base.html' %}
+{% block title %}Track Order | MegaStore{% endblock %}
+{% block content %}
+<div class="max-w-5xl mx-auto space-y-8 mt-10">
+    <div class="text-center mb-10">
+        <h1 class="text-4xl font-extrabold tracking-tight mb-2 text-stone-900">Track Your Order</h1>
+        <p class="text-stone-500 text-lg">Nhập mã tracking hoặc mở trực tiếp từ trang xác nhận đơn.</p>
+    </div>
+
+    <div class="bg-white p-6 rounded-3xl shadow-sm border border-stone-200">
+        <form method="POST" action="{% url 'tracking' %}" class="flex space-x-3">
+            {% csrf_token %}
+            <input id="tracking-input" type="text" name="tracking_id" required placeholder="ORD-XXXXX"
+                value="{{ order.tracking_id|default:'' }}"
+                class="flex-grow px-6 py-3 rounded-2xl border border-stone-200 focus:outline-none focus:ring-2 focus:ring-orange-500 bg-stone-50 transition">
+            <button id="tracking-submit" type="submit"
+                class="bg-stone-900 hover:bg-black text-white font-bold py-3 px-8 rounded-2xl transition shadow-lg">
+                Track
+            </button>
+        </form>
+    </div>
+
+    {% if messages %}
+    {% for message in messages %}
+    <div class="bg-red-50 border border-red-100 text-red-600 px-6 py-4 rounded-2xl text-center text-sm font-medium">
+        {{ message }}
+    </div>
+    {% endfor %}
+    {% endif %}
+
+    {% if order %}
+    <div class="bg-white p-8 rounded-3xl border border-stone-200 shadow-xl mt-8 ring-1 ring-stone-100">
+        <div class="flex flex-wrap justify-between items-start gap-4 mb-8 border-b border-stone-100 pb-6">
+            <div>
+                <h3 class="text-stone-400 text-xs font-bold uppercase tracking-widest mb-1">Customer</h3>
+                <p class="text-xl font-bold text-stone-900">{{ order.full_name|default:'N/A' }}</p>
+                <p class="text-sm text-stone-400">Tracking: {{ order.tracking_id|default:'N/A' }}</p>
+            </div>
+            <div class="text-right">
+                <h3 class="text-stone-400 text-xs font-bold uppercase tracking-widest mb-1">Order Status</h3>
+                <span
+                    class="px-4 py-1.5 rounded-full text-sm font-bold {% if order.status == 'COMPLETED' or order.status == 'Completed' or shipment.status|upper == 'DELIVERED' or shipment.status|upper == 'SHIPPED' %}bg-emerald-100 text-emerald-700{% else %}bg-orange-100 text-orange-700{% endif %}">
+                    {% if shipment.status|upper == 'DELIVERED' or shipment.status|upper == 'SHIPPED' %}DELIVERED{% else %}{{ order.status|default:'PENDING' }}{% endif %}
+                </span>
+            </div>
+        </div>
+
+        <div class="grid md:grid-cols-3 gap-4 mb-8">
+            <div class="rounded-2xl border border-stone-200 p-4 bg-stone-50">
+                <p class="text-xs uppercase tracking-wider text-stone-400 font-bold">Order</p>
+                <p class="mt-2 text-lg font-bold text-stone-900">#{{ order.id|default:'-' }}</p>
+                <p class="text-sm text-stone-500">Total: ${% firstof order.total order.total_price '-' %}</p>
+            </div>
+            <div class="rounded-2xl border border-stone-200 p-4 bg-stone-50">
+                <p class="text-xs uppercase tracking-wider text-stone-400 font-bold">Payment</p>
+                <p class="mt-2 text-lg font-bold {% if payment %}text-emerald-700{% else %}text-stone-500{% endif %}">
+                    {% if payment %}{{ payment.status }}{% else %}Pending{% endif %}
+                </p>
+                <p class="text-sm text-stone-500">{% if payment %}${{ payment.amount }} - {{ payment.method }}{% else %}Chưa ghi nhận{% endif %}</p>
+            </div>
+            <div class="rounded-2xl border border-stone-200 p-4 bg-stone-50">
+                <p class="text-xs uppercase tracking-wider text-stone-400 font-bold">Shipping</p>
+                <p class="mt-2 text-lg font-bold 
+                    {% if order.status|upper == 'COMPLETED' or order.status|upper == 'DELIVERED' or order.status|upper == 'SHIPPED' or shipment.status|upper == 'DELIVERED' or shipment.status|upper == 'SHIPPED' %}text-emerald-700
+                    {% elif order.status|upper == 'CANCELLED' or shipment.status|upper == 'CANCELLED' %}text-rose-600
+                    {% elif order.status|upper == 'PROCESSING' or shipment.status|upper == 'IN TRANSIT' %}text-orange-700
+                    {% else %}text-stone-500{% endif %}">
+                    {% if order.status|upper == 'COMPLETED' or order.status|upper == 'DELIVERED' or order.status|upper == 'SHIPPED' or shipment.status|upper == 'DELIVERED' or shipment.status|upper == 'SHIPPED' %}DELIVERED
+                    {% elif order.status|upper == 'CANCELLED' or shipment.status|upper == 'CANCELLED' %}CANCELLED
+                    {% elif order.status|upper == 'PROCESSING' or shipment.status|upper == 'IN TRANSIT' %}IN TRANSIT
+                    {% elif shipment.status|upper == 'PREPARING' %}PREPARING
+                    {% else %}PENDING{% endif %}
+                </p>
+                <p class="text-sm text-stone-500">
+                    {% if order.status|upper == 'COMPLETED' or order.status|upper == 'DELIVERED' or order.status|upper == 'SHIPPED' or shipment.status|upper == 'DELIVERED' or shipment.status|upper == 'SHIPPED' %}Giao hàng thành công
+                    {% elif order.status|upper == 'CANCELLED' or shipment.status|upper == 'CANCELLED' %}Đơn hàng đã hủy
+                    {% elif shipment.status|upper == 'IN TRANSIT' %}Đang trên đường giao
+                    {% elif shipment.status|upper == 'PREPARING' %}Đang chuẩn bị hàng{% else %}Đang chuẩn bị hàng{% endif %}
+                </p>
+            </div>
+        </div>
+
+        <div class="space-y-10 relative before:absolute before:inset-0 before:ml-5 before:h-full before:w-0.5 before:bg-stone-100">
+            <div class="relative flex items-center gap-6">
+                <div class="w-10 h-10 rounded-full bg-emerald-500 flex items-center justify-center text-white shrink-0 z-10 shadow-lg shadow-emerald-500/30">✓</div>
+                <div>
+                    <h4 class="font-bold text-stone-900">Order Placed</h4>
+                    <p class="text-stone-500 text-sm">Đơn hàng đã được tạo thành công.</p>
+                </div>
+            </div>
+
+            <div class="relative flex items-center gap-6">
+                <div class="w-10 h-10 rounded-full {% if payment %}bg-emerald-500 text-white shadow-emerald-500/30{% else %}bg-stone-100 text-stone-300{% endif %} flex items-center justify-center shrink-0 z-10 shadow-lg transition-all duration-500">💳</div>
+                <div class="{% if not payment %}opacity-50{% endif %}">
+                    <h4 class="font-bold text-stone-900">Payment Confirmed</h4>
+                    <p class="text-stone-500 text-sm">{% if payment %}Thanh toán {{ payment.method }} đã xác nhận.{% else %}Đang chờ thanh toán.{% endif %}</p>
+                </div>
+            </div>
+
+            <div class="relative flex items-center gap-6">
+                <div class="w-10 h-10 rounded-full {% if order.status|upper == 'COMPLETED' or order.status|upper == 'DELIVERED' or order.status|upper == 'SHIPPED' or shipment.status|upper == 'DELIVERED' or shipment.status|upper == 'SHIPPED' %}bg-emerald-500 text-white shadow-emerald-500/30{% elif shipment %}bg-orange-500 text-white shadow-orange-500/30{% else %}bg-stone-100 text-stone-300{% endif %} flex items-center justify-center shrink-0 z-10 shadow-lg transition-all duration-500">
+                    {% if order.status|upper == 'COMPLETED' or order.status|upper == 'DELIVERED' or order.status|upper == 'SHIPPED' or shipment.status|upper == 'DELIVERED' or shipment.status|upper == 'SHIPPED' %}✓{% else %}📦{% endif %}
+                </div>
+                <div class="{% if not shipment and order.status|upper != 'COMPLETED' and order.status|upper != 'DELIVERED' and order.status|upper != 'SHIPPED' and shipment.status|upper != 'DELIVERED' and shipment.status|upper != 'SHIPPED' %}opacity-50{% endif %}">
+                    <h4 class="font-bold text-stone-900">
+                        {% if order.status|upper == 'COMPLETED' or order.status|upper == 'DELIVERED' or order.status|upper == 'SHIPPED' or shipment.status|upper == 'DELIVERED' or shipment.status|upper == 'SHIPPED' %}Delivery Successful{% else %}Shipping Information{% endif %}
+                    </h4>
+                    <p class="text-stone-500 text-sm">
+                        {% if order.status|upper == 'COMPLETED' or order.status|upper == 'DELIVERED' or order.status|upper == 'SHIPPED' or shipment.status|upper == 'DELIVERED' or shipment.status|upper == 'SHIPPED' %}Đơn hàng đã được giao thành công.{% elif shipment %}Đơn vị vận chuyển: {{ shipment.carrier }}.{% else %}Hệ thống đang chuẩn bị hàng.{% endif %}
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {% if order_items %}
+    <div class="bg-white p-8 rounded-3xl border border-stone-200 shadow-sm mt-8">
+        <h3 class="text-lg font-bold text-stone-900 mb-6">Package Contents</h3>
+        <div class="space-y-4">
+            {% for item in order_items %}
+            <div class="flex justify-between items-center py-4 border-b border-stone-50 last:border-0">
+                <div>
+                    <p class="font-bold text-stone-900">{{ item.brand|default:'' }} {{ item.name|default:'Product' }}</p>
+                    <p class="text-sm text-stone-400">Qty: {{ item.quantity|default:1 }}</p>
+                </div>
+                <p class="font-bold text-stone-900">${{ item.price|default:'-' }}</p>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    {% endif %}
+    {% endif %}
+
+    {% if user_orders %}
+    <div class="mt-16">
+        <h2 class="text-2xl font-bold text-stone-900 mb-6">Your Order History</h2>
+        <div class="grid gap-4">
+            {% for uo in user_orders %}
+            <a href="?tid={{ uo.tracking_id }}" class="flex items-center justify-between p-5 bg-white rounded-2xl border border-stone-200 hover:border-orange-500 hover:shadow-md transition group">
+                <div>
+                    <p class="font-bold text-stone-900">{{ uo.tracking_id }}</p>
+                    <p class="text-xs text-stone-400">{{ uo.created_at|date:"M d, Y" }}</p>
+                </div>
+                <div class="text-right">
+                    <p class="font-bold text-stone-900">${{ uo.total_price }}</p>
+                    <p class="text-xs uppercase font-bold {% if uo.status == 'Completed' %}text-emerald-500{% else %}text-orange-500{% endif %}">
+                        {{ uo.status }}
+                    </p>
+                </div>
+            </a>
+            {% endfor %}
+        </div>
+    </div>
+    {% else %}
+        {% if not order %}
+        <div class="text-center py-20 bg-stone-50 rounded-3xl border border-dashed border-stone-200">
+            <p class="text-stone-400">Bạn chưa có đơn hàng. <a href="{% url 'shop' %}" class="text-orange-600 font-bold underline">Mua sắm ngay!</a></p>
+        </div>
+        {% endif %}
+    {% endif %}
+</div>
+{% endblock %}

@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Global Orders | Admin Portal</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Outfit', sans-serif; background-color: #020617; color: #f8fafc; }
+        .admin-glass { background: rgba(15, 23, 42, 0.7); backdrop-filter: blur(20px); border: 1px solid rgba(16, 185, 129, 0.1); }
+    </style>
+</head>
+<body class="min-h-screen bg-slate-950 p-8 lg:p-12">
+    <div class="max-w-7xl mx-auto">
+        <header class="flex justify-between items-center mb-12">
+            <div class="flex items-center space-x-4">
+                <a href="{% url 'admin_dashboard' %}" class="w-10 h-10 rounded-full bg-slate-800 flex items-center justify-center hover:bg-slate-700 transition">←</a>
+                <div>
+                    <h1 class="text-3xl font-black text-white">System Orders</h1>
+                    <p class="text-slate-500 text-sm">Global transaction audit log.</p>
+                </div>
+            </div>
+        </header>
+
+        {% if messages %}
+            {% for message in messages %}
+            <div class="p-4 rounded-xl mb-6 bg-purple-500/10 text-purple-400 border border-purple-500/20 text-xs font-bold">
+                {{ message }}
+            </div>
+            {% endfor %}
+        {% endif %}
+
+        <div class="admin-glass rounded-[2rem] overflow-hidden">
+            <table class="w-full text-left border-collapse">
+                <thead>
+                    <tr class="bg-slate-900/50">
+                        <th class="px-6 py-4 text-xs font-black text-slate-500 uppercase tracking-widest">Order ID</th>
+                        <th class="px-6 py-4 text-xs font-black text-slate-500 uppercase tracking-widest">Customer</th>
+                        <th class="px-6 py-4 text-xs font-black text-slate-500 uppercase tracking-widest">Total</th>
+                        <th class="px-6 py-4 text-xs font-black text-slate-500 uppercase tracking-widest">Status</th>
+                        <th class="px-6 py-4 text-xs font-black text-slate-500 uppercase tracking-widest text-center">Actions</th>
+                        <th class="px-6 py-4 text-xs font-black text-slate-500 uppercase tracking-widest text-right">Date</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-slate-800/50">
+                    {% for o in orders %}
+                    <tr class="hover:bg-white/[0.02] transition">
+                        <td class="px-6 py-4 font-black text-purple-400">#{{ o.tracking_id|default:o.id }}</td>
+                        <td class="px-6 py-4">
+                            <p class="font-bold text-white">{{ o.customer_name|default:"Guest" }}</p>
+                            <p class="text-[10px] text-slate-500">{{ o.customer_phone }}</p>
+                        </td>
+                        <td class="px-6 py-4 font-black text-white">${% firstof o.total o.total_price %}</td>
+                        <td class="px-6 py-4">
+                            <span class="px-3 py-1 rounded-full text-[10px] font-black tracking-widest uppercase
+                                {% if o.status == 'PENDING' %} bg-amber-500/10 text-amber-500 border border-amber-500/20
+                                {% elif o.status == 'COMPLETED' %} bg-emerald-500/10 text-emerald-500 border border-emerald-500/20
+                                {% else %} bg-slate-800 text-slate-500 {% endif %}">
+                                {{ o.status }}
+                            </span>
+                        </td>
+                        <td class="px-6 py-4 text-center">
+                            {% if o.status|upper == 'PENDING' or o.status|upper == 'PROCESSING' %}
+                            <div class="flex items-center justify-center space-x-2">
+                                <a href="{% url 'admin_update_order_status' o.id %}?status=completed" class="px-2 py-1 rounded bg-emerald-500/20 text-emerald-400 hover:bg-emerald-500 hover:text-slate-950 font-bold text-[10px] transition">
+                                    COMPLETE
+                                </a>
+                                <a href="{% url 'admin_update_order_status' o.id %}?status=cancelled" class="px-2 py-1 rounded bg-rose-500/20 text-rose-400 hover:bg-rose-500 hover:text-slate-950 font-bold text-[10px] transition">
+                                    CANCEL
+                                </a>
+                            </div>
+                            {% else %}
+                            <span class="text-[10px] text-slate-600 font-medium italic">No actions</span>
+                            {% endif %}
+                        </td>
+                        <td class="px-6 py-4 text-right text-xs text-slate-500 font-medium">
+                            {{ o.created_at|default:"N/A" }}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</body>
+</html>

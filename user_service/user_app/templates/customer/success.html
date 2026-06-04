@@ -1,0 +1,44 @@
+{% extends 'customer/base.html' %}
+{% block title %}Order Successful | MegaStore{% endblock %}
+{% block content %}
+<div class="max-w-2xl mx-auto py-20 text-center">
+    <div class="w-24 h-24 bg-emerald-100 text-emerald-600 rounded-full flex items-center justify-center text-5xl mx-auto mb-8 shadow-xl shadow-emerald-500/20">
+        ✓
+    </div>
+    <h1 class="text-4xl font-bold text-stone-900 mb-4 tracking-tight">Order Placed Successfully!</h1>
+    <p class="text-stone-500 text-lg mb-10 leading-relaxed">
+        Thank you, <strong>{{ order.full_name }}</strong>. Your order has been received and is being processed.<br>
+        You can track status across Order, Payment, and Shipping services.
+    </p>
+
+    <div class="bg-white p-8 rounded-3xl border border-stone-200 shadow-sm mb-12 text-left">
+        <h2 class="text-xs font-bold text-stone-400 uppercase tracking-widest mb-6">Order Details</h2>
+        <div class="flex justify-between items-center mb-4">
+            <span class="text-stone-500">Tracking Number</span>
+            <span class="font-mono font-bold text-orange-600 text-lg">{{ order.tracking_id|default:"N/A" }}</span>
+        </div>
+        <div class="flex justify-between items-center mb-4">
+            <span class="text-stone-500">Order ID</span>
+            <span class="font-bold text-stone-900">#{{ order.id|default:"-" }}</span>
+        </div>
+        <div class="flex justify-between items-center mb-4">
+            <span class="text-stone-500">Total Amount</span>
+            <span class="font-bold text-stone-900 text-lg">${{ order.total_price }}</span>
+        </div>
+        <div class="flex justify-between items-center">
+            <span class="text-stone-500">Estimated Delivery</span>
+            <span class="font-bold text-stone-900">3-5 Business Days</span>
+        </div>
+    </div>
+
+    <div class="flex gap-4 justify-center">
+        <a id="success-continue" href="{% url 'shop' %}" class="bg-stone-900 text-white px-8 py-4 rounded-2xl font-bold hover:bg-stone-800 transition">Continue Shopping</a>
+        <a id="success-track" href="{% url 'tracking' %}?order_id={{ order.id }}{% if order.tracking_id %}&tid={{ order.tracking_id }}{% endif %}" class="bg-orange-600 text-white px-8 py-4 rounded-2xl font-bold hover:bg-orange-700 transition">Track This Order</a>
+    </div>
+</div>
+
+<script>
+    localStorage.removeItem('cart');
+    updateCartCount();
+</script>
+{% endblock %}

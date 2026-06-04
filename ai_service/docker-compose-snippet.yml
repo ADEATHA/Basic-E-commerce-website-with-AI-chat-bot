@@ -1,0 +1,17 @@
+
+  # === ADD to docker-compose.yml ===
+  ai_service:
+    build: ./ai_service
+    container_name: ai_service
+    ports:
+      - "8005:8005"
+    networks:
+      - default
+    depends_on:
+      - mysql-db
+      - postgres-db
+
+  # === ADD to api-gateway nginx / Django urls ===
+  # location /api/ai/ {
+  #     proxy_pass http://ai_service:8005;
+  # }

@@ -1,0 +1,160 @@
+{% extends 'customer/base.html' %}
+{% block title %}My Cart | MegaStore{% endblock %}
+{% block content %}
+<div class="max-w-6xl mx-auto py-8">
+    <h1 class="text-3xl font-bold mb-8">Shopping Cart</h1>
+
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-12">
+        <section class="lg:col-span-2 space-y-4" id="cart-items-container">
+            <div class="text-stone-500 py-12 text-center bg-white rounded-3xl border border-dashed border-stone-300">
+                Your cart is empty. <a href="{% url 'shop' %}" class="text-orange-600 font-bold">Go shopping!</a>
+            </div>
+        </section>
+
+        <aside class="bg-white p-8 rounded-3xl border border-stone-200 shadow-sm h-fit sticky top-24">
+            <h2 class="text-xl font-bold mb-6">Order Summary</h2>
+            <div class="space-y-4 mb-6 border-b border-stone-100 pb-6">
+                <div class="flex justify-between text-stone-600">
+                    <span>Subtotal</span>
+                    <span id="subtotal-price">$0.00</span>
+                </div>
+                <div class="flex justify-between text-stone-600">
+                    <span>Shipping</span>
+                    <span>Free</span>
+                </div>
+                <div class="flex justify-between text-xl font-bold text-stone-900 pt-4">
+                    <span>Total</span>
+                    <span id="total-price-display">$0.00</span>
+                </div>
+            </div>
+
+            {% if user.is_authenticated %}
+            <form id="checkout-form" action="{% url 'checkout' %}" method="POST" onsubmit="prepareCheckout(event)" class="space-y-4">
+                {% csrf_token %}
+                <input type="hidden" name="items_json" id="items_json_input">
+                <input type="hidden" name="total_price" id="total_price_input">
+
+                <div class="space-y-2">
+                    <label class="text-xs font-bold text-stone-500 uppercase">Contact Name</label>
+                    <input type="text" name="full_name" required placeholder="John Doe" class="w-full bg-stone-50 border border-stone-200 rounded-xl px-4 py-3 text-sm focus:border-orange-500 outline-none transition">
+                </div>
+                <div class="space-y-2">
+                    <label class="text-xs font-bold text-stone-500 uppercase">Shipping Address</label>
+                    <textarea name="address" required placeholder="123 Street Name, City" class="w-full bg-stone-50 border border-stone-200 rounded-xl px-4 py-3 text-sm focus:border-orange-500 outline-none transition h-24"></textarea>
+                </div>
+                <div class="space-y-2">
+                    <label class="text-xs font-bold text-stone-500 uppercase">Phone Number</label>
+                    <input type="text" name="phone" required placeholder="0123456789" class="w-full bg-stone-50 border border-stone-200 rounded-xl px-4 py-3 text-sm focus:border-orange-500 outline-none transition">
+                </div>
+
+                <div id="checkout-status" class="hidden text-xs rounded-xl px-3 py-2 bg-amber-50 text-amber-700 border border-amber-200">
+                    Đang tạo Order → Payment → Shipping...
+                </div>
+
+                <button id="checkout-submit" type="submit" class="w-full bg-orange-600 hover:bg-orange-700 text-white font-bold py-4 rounded-2xl transition shadow-lg shadow-orange-500/20 mt-4 disabled:opacity-70 disabled:cursor-not-allowed">
+                    Place Order
+                </button>
+            </form>
+            {% else %}
+            <div class="text-center bg-stone-50 p-6 rounded-2xl border border-stone-200">
+                <p class="text-stone-500 text-sm mb-4">Please sign in to complete your purchase.</p>
+                <a href="{% url 'login' %}?next={% url 'cart' %}" class="inline-block bg-stone-900 text-white px-8 py-3 rounded-xl font-bold hover:bg-orange-600 transition">Sign In to Checkout</a>
+            </div>
+            {% endif %}
+        </aside>
+    </div>
+</div>
+
+<script>
+    function renderCart() {
+        const cart = JSON.parse(localStorage.getItem('cart') || '[]');
+        const container = document.getElementById('cart-items-container');
+        const subtotalEl = document.getElementById('subtotal-price');
+        const totalEl = document.getElementById('total-price-display');
+
+        if (cart.length === 0) {
+            container.innerHTML = `
+                <div class="text-stone-500 py-12 text-center bg-white rounded-3xl border border-dashed border-stone-300">
+                    Your cart is empty. <a href="{% url 'shop' %}" class="text-orange-600 font-bold">Go shopping!</a>
+                </div>
+            `;
+            subtotalEl.innerText = '$0.00';
+            totalEl.innerText = '$0.00';
+            const priceInput = document.getElementById('total_price_input');
+            if (priceInput) priceInput.value = '0.00';
+            return;
+        }
+
+        container.innerHTML = '';
+        let total = 0;
+
+        cart.forEach((item, index) => {
+            total += parseFloat(item.price);
+
+            const getIcon = (type) => {
+                const t = (type || '').toLowerCase();
+                if (t.includes('mobile')) return '📱';
+                if (t.includes('computer')) return '💻';
+                if (t.includes('clothes')) return '👕';
+                if (t.includes('shoes')) return '👟';
+                if (t.includes('cosmetics')) return '💄';
+                if (t.includes('jewelry')) return '💍';
+                if (t.includes('watches')) return '⌚';
+                if (t.includes('kitchen')) return '🍳';
+                return '📦';
+            };
+
+            const itemHtml = `
+                <div class="bg-white p-6 rounded-3xl border border-stone-200 flex items-center gap-6 group">
+                    <div class="w-20 h-20 bg-stone-100 rounded-2xl flex items-center justify-center text-3xl shrink-0">
+                        ${getIcon(item.type)}
+                    </div>
+                    <div class="flex-grow">
+                        <h3 class="font-bold text-lg">${item.brand} ${item.name}</h3>
+                        <p class="text-stone-400 text-sm capitalize">${item.type}</p>
+                    </div>
+                    <div class="text-right">
+                        <div class="font-bold text-lg mb-2">$${item.price}</div>
+                        <button onclick="removeFromCart(${index})" class="text-red-400 text-xs hover:text-red-600 transition">Remove</button>
+                    </div>
+                </div>
+            `;
+            container.insertAdjacentHTML('beforeend', itemHtml);
+        });
+
+        subtotalEl.innerText = `$${total.toFixed(2)}`;
+        totalEl.innerText = `$${total.toFixed(2)}`;
+
+        const priceInput = document.getElementById('total_price_input');
+        if (priceInput) priceInput.value = total.toFixed(2);
+    }
+
+    function removeFromCart(index) {
+        const cart = JSON.parse(localStorage.getItem('cart') || '[]');
+        cart.splice(index, 1);
+        localStorage.setItem('cart', JSON.stringify(cart));
+        renderCart();
+        updateCartCount();
+    }
+
+    function prepareCheckout(e) {
+        const cart = localStorage.getItem('cart') || '[]';
+        document.getElementById('items_json_input').value = cart;
+
+        const submitBtn = document.getElementById('checkout-submit');
+        const status = document.getElementById('checkout-status');
+        if (submitBtn) {
+            submitBtn.disabled = true;
+            submitBtn.textContent = 'Processing...';
+        }
+        if (status) {
+            status.classList.remove('hidden');
+        }
+
+        // keep standard form post
+        return true;
+    }
+
+    document.addEventListener('DOMContentLoaded', renderCart);
+</script>
+{% endblock %}

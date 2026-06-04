@@ -1,0 +1,79 @@
+{% extends 'staff/base.html' %}
+{% block title %}Dashboard | StaffPortal{% endblock %}
+{% block content %}
+<div class="max-w-7xl mx-auto space-y-8">
+    <header class="flex justify-between items-center bg-slate-800/50 p-6 rounded-2xl glass">
+        <div>
+            <h1 class="text-3xl font-bold text-white tracking-tight">Staff Operations Dashboard</h1>
+            <p class="text-slate-400 mt-1">Manage global inventory and view import history.</p>
+        </div>
+    </header>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <!-- Quick Action Cards -->
+        <a href="{% url 'staff_import_product' %}" class="glass p-6 rounded-2xl border border-indigo-500/20 hover:border-indigo-500/50 transition bg-slate-800/40 group">
+            <div class="w-12 h-12 bg-indigo-500/20 text-indigo-400 rounded-xl flex items-center justify-center mb-4 text-xl">📦</div>
+            <h2 class="text-xl font-semibold text-white group-hover:text-indigo-400 transition">Import Products (DDD)</h2>
+            <p class="text-slate-400 mt-2 text-sm">Add stock for any category globally (Mobiles, Clothes, Shoes, etc).</p>
+        </a>
+    </div>
+
+    <!-- Order Management Table -->
+    <div class="glass rounded-2xl border border-slate-700 overflow-hidden bg-slate-800/30">
+        <div class="p-6 border-b border-slate-700 flex justify-between items-center">
+            <h2 class="text-xl font-bold text-white">Order Processing & Operations</h2>
+            <span class="bg-indigo-500/20 text-indigo-400 text-xs px-3 py-1 rounded-full border border-indigo-500/30">Total: {{ orders|length }}</span>
+        </div>
+        <div class="overflow-x-auto">
+            <table class="w-full text-left">
+                <thead>
+                    <tr class="bg-slate-900/50 text-slate-400 text-xs uppercase tracking-wider">
+                        <th class="px-6 py-4 font-medium">Tracking ID</th>
+                        <th class="px-6 py-4 font-medium">Customer</th>
+                        <th class="px-6 py-4 font-medium">Total Price</th>
+                        <th class="px-6 py-4 font-medium">Status</th>
+                        <th class="px-6 py-4 font-medium text-center">Action</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-slate-700/50">
+                    {% for order in orders %}
+                    <tr class="hover:bg-white/5 transition text-sm">
+                        <td class="px-6 py-4 font-mono text-indigo-400">{{ order.tracking_id }}</td>
+                        <td class="px-6 py-4">
+                            <div class="text-white font-medium">{{ order.full_name }}</div>
+                            <div class="text-slate-500 text-xs">{{ order.phone }}</div>
+                        </td>
+                        <td class="px-6 py-4 text-white font-medium">${{ order.total_price }}</td>
+                        <td class="px-6 py-4">
+                            <span class="px-3 py-1 rounded-full text-xs font-medium 
+                                {% if order.status == 'Pending' %}bg-amber-500/20 text-amber-500 border border-amber-500/30
+                                {% elif order.status == 'Processing' %}bg-blue-500/20 text-blue-500 border border-blue-500/30
+                                {% elif order.status == 'Shipped' or order.status == 'Delivered' %}bg-emerald-500/20 text-emerald-500 border border-emerald-500/30
+                                {% else %}bg-slate-500/20 text-slate-400 border border-slate-500/30{% endif %}">
+                                {{ order.status }}
+                            </span>
+                        </td>
+                        <td class="px-6 py-4">
+                            <form action="{% url 'staff_update_order' order.id %}" method="post" class="flex items-center space-x-2">
+                                {% csrf_token %}
+                                <select name="status" class="bg-slate-900 border border-slate-700 text-xs text-white rounded-lg px-2 py-1 focus:outline-none focus:border-indigo-500">
+                                    <option value="Pending" {% if order.status == 'Pending' %}selected{% endif %}>Pending</option>
+                                    <option value="Processing" {% if order.status == 'Processing' %}selected{% endif %}>Processing</option>
+                                    <option value="Delivered" {% if order.status == 'Delivered' or order.status == 'Shipped' %}selected{% endif %}>Delivered</option>
+                                    <option value="Cancelled" {% if order.status == 'Cancelled' %}selected{% endif %}>Cancelled</option>
+                                </select>
+                                <button type="submit" class="text-indigo-400 hover:text-white transition">Update</button>
+                            </form>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="5" class="px-6 py-12 text-center text-slate-500 italic">No orders to process yet.</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

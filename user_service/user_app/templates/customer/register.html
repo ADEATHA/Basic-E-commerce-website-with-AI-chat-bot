@@ -1,0 +1,57 @@
+{% extends 'customer/base.html' %}
+{% block title %}Create Account | MegaStore{% endblock %}
+{% block content %}
+<div class="max-w-md mx-auto my-12 bg-white p-10 rounded-3xl border border-stone-200 shadow-xl shadow-stone-200/50">
+    <div class="text-center mb-8">
+        <h1 class="text-3xl font-bold text-stone-900 tracking-tight">Join MegaStore</h1>
+        <p class="text-stone-500 mt-2">Create an account to start shopping.</p>
+    </div>
+
+    <form method="post" action="{% url 'register' %}" class="space-y-6">
+        {% csrf_token %}
+        
+        {% for field in form %}
+        <div class="space-y-2">
+            <label class="text-sm font-medium text-stone-700">{{ field.label }}</label>
+            {{ field }}
+            {% if field.errors %}
+                <p class="text-red-500 text-xs">{{ field.errors|striptags }}</p>
+            {% endif %}
+        </div>
+        {% endfor %}
+
+        <button type="submit" class="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-3 rounded-xl transition shadow-lg shadow-emerald-500/20">
+            Create Account
+        </button>
+    </form>
+
+    <p class="text-stone-500 text-sm text-center mt-8">
+        Already have an account? <a href="{% url 'login' %}" class="text-emerald-600 font-semibold hover:underline">Sign In</a>
+    </p>
+
+    <!-- Django Form Styling Overrides via CSS -->
+    <style>
+        input[type="text"], input[type="password"], input[type="email"] {
+            width: 100%;
+            background-color: #fafaf9;
+            border: 1px solid #e7e5e4;
+            border-radius: 0.75rem;
+            padding: 0.75rem 1rem;
+            color: #1c1917;
+            outline: none;
+            transition: all 0.2s;
+        }
+        input[type="text"]:focus, input[type="password"]:focus, input[type="email"]:focus {
+            border-color: #10b981;
+            box-shadow: 0 0 0 1px #10b981;
+        }
+        ul.errorlist {
+            color: #ef4444;
+            font-size: 0.75rem;
+            margin-top: 0.25rem;
+            list-style-type: none;
+            padding: 0;
+        }
+    </style>
+</div>
+{% endblock %}
