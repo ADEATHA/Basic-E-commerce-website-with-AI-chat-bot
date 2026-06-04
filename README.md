@@ -258,13 +258,3 @@ docker-compose exec ai_service python train_models.py
 
 ---
 
-## 📈 Đánh giá Hệ thống (System Evaluation)
-
-### ✅ Ưu điểm (Pros)
-*   **Khả năng mở rộng vượt trội:** Các service hoạt động độc lập giúp mở rộng tài nguyên chọn lọc (ví dụ: chỉ scale up `ai_service` hoặc `product_service` vào các mùa mua sắm cao điểm mà không lãng phí tài nguyên của các phân hệ khác).
-*   **Độ tin cậy cao (Resilience):** Lỗi tại một service được cô lập hoàn toàn nhờ ranh giới mạng ngăn cách. Nếu `payment_service` gặp sự cố, khách hàng vẫn có thể duyệt sản phẩm và thêm hàng vào giỏ bình thường.
-*   **Khả năng cá nhân hóa xuất sắc:** Sự kết hợp hoàn hảo giữa mô hình lai AI (LSTM + Graph DB + RAG Chatbot) đem lại trải nghiệm tư vấn thông minh, chính xác, bám sát hàng hóa tồn kho thực tế.
-
-### ⚠️ Hạn chế & Hướng phát triển (Cons & Future Work)
-*   **Độ trễ mạng nội bộ:** Do luồng checkout đồng bộ đi qua chuỗi nhiều microservices dẫn đến phát sinh chi phí serialization/deserialization dữ liệu JSON và độ trễ mạng. Phương hướng khắc phục: Chuyển đổi sang giao tiếp nội bộ bằng gRPC hiệu năng cao thay cho REST HTTP.
-*   **Độ phức tạp khi Debug:** Việc theo dõi vết giao dịch phân tán khó khăn do log nằm rải rác. Phương hướng khắc phục: Tích hợp hệ thống Distributed Tracing sử dụng OpenTelemetry kết hợp Jaeger và ELK Stack để quản lý log tập trung.
