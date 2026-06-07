@@ -21,6 +21,12 @@ class RecommendRequest(BaseModel):
     user_id: int = 0
     top_n: int = 4
 
+class TrackRequest(BaseModel):
+    user_id: int
+    product_id: str
+    category: str
+    action: str  # 'click', 'view', 'add_to_cart', 'purchase'
+
 # Global Assets
 assets = {
     "docs": [],
@@ -153,12 +159,19 @@ async def chat(req: ChatRequest):
     
     if products:
         p_str = "\n".join([f"- {p['name']} ({p['brand']}) [GIÁ: ${p['price']}]: {p['category_name']}" for p in products])
-        prompt += f"DANH SÁCH SẢN PHẨM PHÙ HỢP TRONG KHO:\n{p_str}\n"
+        prompt += f"DANH SÁCH SẢN PHẨM PHÙ HỢP TRONG KHO (từ FAISS RAG):\n{p_str}\n"
+
+    if graph:
+        prompt += f"\nTHÔNG TIN SẢN PHẨM THÊM TỪ ĐỒ THỊ (từ Neo4j):\n{graph}\n"
+
+    if p_cat:
+        prompt += f"\nGỢI Ý SỞ THÍCH KHÁCH HÀNG (Dự đoán từ Neo4j + Bi-LSTM): {p_cat}\n"
 
     prompt += "\n⚠️ QUY TẮC:\n"
-    prompt += "1. CHỈ ĐƯỢC tư vấn sản phẩm có trong danh sách trên.\n"
+    prompt += "1. CHỈ ĐƯỢC tư vấn sản phẩm có trong danh sách trên (từ kho FAISS hoặc đồ thị Neo4j).\n"
     prompt += "2. Nếu khách hỏi rẻ nhất/đắt nhất, hãy chỉ đích danh máy có giá thấp nhất/cao nhất trong danh sách.\n"
-    prompt += "3. Trả lời ngắn gọn, chuyên nghiệp bằng Tiếng Việt."
+    prompt += "3. Ưu tiên gợi ý sản phẩm thuộc danh mục khách hàng đang quan tâm nhất (nếu có thông tin gợi ý sở thích).\n"
+    prompt += "4. Trả lời ngắn gọn, tự nhiên, chuyên nghiệp bằng Tiếng Việt."
 
     answer = ask_ollama(prompt) or "AI đang bận, vui lòng thử lại."
     return {
@@ -176,6 +189,29 @@ async def recommend(req: RecommendRequest):
 @app.post("/segment")
 async def segment(req: RecommendRequest):
     return {"segment": "VIP", "monetary": 5000, "user_id": req.user_id}
+
+@app.post("/track")
+async def track_action(req: TrackRequest):
+    if not assets["neo4j_driver"] or not req.user_id or not req.product_id:
+        return {"status": "ignored"}
+    try:
+        rel_type = req.action.upper()
+        if rel_type not in ["VIEW", "CLICK", "ADD_TO_CART", "PURCHASE"]:
+            raise HTTPException(status_code=400, detail="Invalid action type")
+            
+        with assets["neo4j_driver"].session() as session:
+            session.run("""
+                MERGE (c:Category {name: $cat_name})
+                MERGE (p:Product {id: $prod_id})
+                MERGE (p)-[:BELONGS_TO]->(c)
+                MERGE (u:User {id: $user_id})
+                MERGE (u)-[r:""" + rel_type + """]->(p)
+                SET r.timestamp = datetime().epochMillis
+            """, cat_name=req.category, prod_id=req.product_id, user_id=int(req.user_id))
+        return {"status": "success", "action": rel_type}
+    except Exception as e:
+        print(f"❌ Neo4j Track Action Error: {e}")
+        return {"status": "error", "message": str(e)}
 
 @app.get("/health")
 async def health():

@@ -173,7 +173,7 @@
                 {% for item in items %}
                 <div class="product-card bg-white p-5 rounded-2xl border border-stone-200 shadow-sm hover:shadow-xl transition group"
                     data-name="{{ item.name|lower }}" data-brand="{{ item.brand|lower }}" data-price="{{ item.price }}">
-                    <div class="aspect-square bg-stone-100 rounded-xl mb-4 flex items-center justify-center text-4xl">
+                    <div onclick="trackClick('{{ item.name|escapejs }}', '{{ cat_name|escapejs }}')" class="aspect-square bg-stone-100 rounded-xl mb-4 flex items-center justify-center text-4xl cursor-pointer">
                         {% if item.image_url %}<img src="{{ item.image_url }}"
                             class="object-cover rounded-xl w-full h-full">
                         {% else %}
@@ -183,12 +183,12 @@
                             {% else %}🛍️{% endif %}
                         {% endif %}
                     </div>
-                    <h3 class="font-bold text-lg group-hover:text-orange-600 transition">{{ item.brand }} {{ item.name }}</h3>
+                    <h3 onclick="trackClick('{{ item.name|escapejs }}', '{{ cat_name|escapejs }}')" class="font-bold text-lg group-hover:text-orange-600 transition cursor-pointer">{{ item.brand }} {{ item.name }}</h3>
                     <p class="text-stone-500 text-sm mb-4">Stock: {{ item.stock }}</p>
                     <div class="flex justify-between items-center">
                         <span class="font-bold text-xl product-price">${{ item.price }}</span>
                         <button
-                            onclick="addToCart('{{ item.id }}', '{{ item.name }}', '{{ item.brand }}', '{{ item.price }}', '{{ cat_name }}')"
+                            onclick="addToCart('{{ item.id }}', '{{ item.name|escapejs }}', '{{ item.brand|escapejs }}', '{{ item.price }}', '{{ cat_name|escapejs }}')"
                             class="bg-stone-900 text-white px-4 py-2 rounded-lg hover:bg-orange-600 transition text-sm">
                             Add to Cart
                         </button>
@@ -400,11 +400,37 @@
         applyFilters();
     }
 
+    async function sendTrackAction(productName, category, action) {
+        if (!USER_ID) return;
+        try {
+            await fetch(`${AI_BASE}/track`, {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({
+                    user_id: USER_ID,
+                    product_id: productName,
+                    category: category,
+                    action: action
+                })
+            });
+            // Tự động cập nhật lại danh sách gợi ý sau khi ghi nhận hành vi thành công
+            setTimeout(loadRecommendations, 200);
+        } catch (e) {
+            console.error("Failed to track action:", e);
+        }
+    }
+
+    function trackClick(name, type) {
+        sendTrackAction(name, type, 'click');
+    }
+
     function addToCart(id, name, brand, price, type) {
         const cart = JSON.parse(localStorage.getItem('cart') || '[]');
         cart.push({ id, name, brand, price, type });
         localStorage.setItem('cart', JSON.stringify(cart));
         updateCartCount();
+        // Ghi nhận hành vi add_to_cart về Neo4j thời gian thực
+        sendTrackAction(name, type, 'add_to_cart');
         alert(`${brand} ${name} added to cart!`);
     }
 
@@ -414,7 +440,7 @@
     const AI_BASE = window.location.port === '8100' 
         ? '/api/ai' 
         : `${window.location.protocol}//${window.location.hostname}:8100/api/ai`;
-    const USER_ID = '{{ user.id }}';
+    const USER_ID = parseInt('{{ user.id }}') || 0;
 
     async function loadRecommendations() {
         const section = document.getElementById('ai-recommend-section');
