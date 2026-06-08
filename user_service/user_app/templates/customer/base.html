@@ -43,8 +43,12 @@
         function updateCartCount() {
             const cart = JSON.parse(localStorage.getItem('cart') || '[]');
             const countEl = document.getElementById('cart-count');
-            if (cart.length > 0) {
-                countEl.innerText = cart.length;
+            let totalQty = 0;
+            cart.forEach(item => {
+                totalQty += parseInt(item.quantity || 1);
+            });
+            if (totalQty > 0) {
+                countEl.innerText = totalQty;
                 countEl.classList.remove('hidden');
             } else {
                 countEl.classList.add('hidden');

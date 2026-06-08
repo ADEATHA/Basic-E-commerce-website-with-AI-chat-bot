@@ -59,7 +59,7 @@ def get_shipment_by_order(request, order_id):
                 
                 if new_status == 'SHIPPED':
                     from .consumers import schedule_delivery
-                    schedule_delivery(order_id, 300)
+                    schedule_delivery(order_id, 60)
         except Exception:
             pass
             

@@ -31,7 +31,7 @@ def mark_shipment_delivered(order_id: int):
     except Shipment.DoesNotExist:
         pass
 
-def schedule_delivery(order_id: int, delay_seconds: int = 300):
+def schedule_delivery(order_id: int, delay_seconds: int = 60):
     timer = Timer(delay_seconds, mark_shipment_delivered, args=[order_id])
     timer.daemon = True
     timer.start()
@@ -55,7 +55,7 @@ def upsert_shipment(order_id: int, carrier: str, source: str):
         shipment.save()
         
     if shipment.status == 'PREPARING':
-        schedule_delivery(order_id, 300)
+        schedule_delivery(order_id, 60)
 
     return {
         'id': shipment.id,
