@@ -54,11 +54,17 @@ async def lifespan(app: FastAPI):
         assets["docs"] = df_p.to_dict("records")
         assets["neo4j_driver"] = GraphDatabase.driver(NEO4J_URI, auth=(NEO4J_USER, NEO4J_PWD))
         
-        INDEX_PATH = '/app/models/product_faiss.index'
-        if os.path.exists(INDEX_PATH):
-            assets["faiss_index"] = faiss.read_index(INDEX_PATH)
-            assets["emb_model"] = SentenceTransformer('paraphrase-multilingual-MiniLM-L12-v2')
-            print("✅ FAISS & RAG loaded.")
+        assets["emb_model"] = SentenceTransformer('paraphrase-multilingual-MiniLM-L12-v2')
+        if assets["docs"]:
+            texts = [f"{d['brand']} {d['name']} {d.get('category_name', '')}. {d.get('description', '')}" for d in assets["docs"]]
+            embeddings = assets["emb_model"].encode(texts, show_progress_bar=False).astype('float32')
+            faiss.normalize_L2(embeddings)
+            
+            dimension = embeddings.shape[1]
+            index = faiss.IndexFlatIP(dimension)
+            index.add(embeddings)
+            assets["faiss_index"] = index
+            print(f"✅ FAISS & RAG dynamically built with {len(texts)} products from Database.")
             
         MODEL_PATH = '/app/models/model_best.keras'
         LE_PATH = '/app/models/category_le.pkl'
@@ -100,8 +106,26 @@ def get_rag_results(query, k=4):
     target_cat = None
     if any(kw in query_lower for kw in ["laptop", "máy tính", "computer", "macbook", "pc"]):
         target_cat = "Computer"
-    elif any(kw in query_lower for kw in ["điện thoại", "phone", "iphone", "samsung", "mobile"]):
+    elif any(kw in query_lower for kw in ["điện thoại", "phone", "iphone", "samsung", "mobile", "đt"]):
         target_cat = "Mobile"
+    elif any(kw in query_lower for kw in ["giày", "shoes", "sneaker", "giay"]):
+        target_cat = "Shoes"
+    elif any(kw in query_lower for kw in ["quần áo", "áo", "quần", "clothes", "shirt", "jeans", "jacket", "hoodie", "thời trang"]):
+        target_cat = "Clothes"
+    elif any(kw in query_lower for kw in ["đồng hồ", "watch", "dong ho"]):
+        target_cat = "Watches"
+    elif any(kw in query_lower for kw in ["mỹ phẩm", "cosmetics", "son", "kem", "perfume", "nước hoa"]):
+        target_cat = "Cosmetics"
+    elif any(kw in query_lower for kw in ["nội thất", "bàn", "ghế", "furniture", "sofa", "chair", "table"]):
+        target_cat = "Furniture"
+    elif any(kw in query_lower for kw in ["bếp", "kitchenware", "nồi", "dao", "kettle", "mixer"]):
+        target_cat = "Kitchenware"
+    elif any(kw in query_lower for kw in ["sách", "book", "truyện"]):
+        target_cat = "Books"
+    elif any(kw in query_lower for kw in ["thể thao", "sportswear", "gym", "yoga"]):
+        target_cat = "Sportswear"
+    elif any(kw in query_lower for kw in ["phụ kiện", "accessories", "kính", "ví", "wallet", "backpack"]):
+        target_cat = "Accessories"
 
     # Identify Price Intent
     sort_mode = None 

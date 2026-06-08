@@ -145,6 +145,7 @@ services:
     volumes:
       - ./order_service:/app
       - order_data:/data
+    command: sh -c "python manage.py makemigrations && python manage.py migrate && python manage.py runserver 0.0.0.0:8000"
     depends_on:
       postgres-db:
         condition: service_healthy
