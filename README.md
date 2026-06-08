@@ -248,10 +248,8 @@ docker-compose exec ai_service python train_models.py
 > ```
 
 #### Bước 5: Truy cập và Trải nghiệm hệ thống
-*   **Giao diện Khách hàng (Customer Shop):** `http://localhost:8100/users/customer/`
-*   **Giao diện Nhân viên (Staff Dashboard):** `http://localhost:8100/users/staff/`
-*   **Cổng Quản trị tối cao (System Admin):** `http://localhost:8100/system-admin/`
-*   **Trang quản lý RabbitMQ Management:** `http://localhost:15672` (Tài khoản: `guest` / `guest`)
+*   **Giao diện Khách hàng (Customer Shop):** `http://localhost:8100/customer/shop/`
+*   **Giao diện Nhân viên (Staff Dashboard):** `http://localhost:8100/staff/login/?next=/staff/dashboard/`
 *   **Giao diện Neo4j Browser:** `http://localhost:7474` (Tài khoản: `neo4j` / `password`)
 
 ---
