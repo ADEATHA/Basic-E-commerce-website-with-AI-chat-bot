@@ -15,6 +15,7 @@ from fastapi.middleware.cors import CORSMiddleware
 class ChatRequest(BaseModel):
     query: str
     user_id: int = 0
+    user_name: str = "Khách"
     mode: str = "predict"
 
 class RecommendRequest(BaseModel):
@@ -26,6 +27,11 @@ class TrackRequest(BaseModel):
     product_id: str
     category: str
     action: str  # 'click', 'view', 'add_to_cart', 'purchase'
+
+class RelatedRequest(BaseModel):
+    product_name: str
+    category: str = ""
+    top_n: int = 3
 
 # Global Assets
 assets = {
@@ -178,24 +184,26 @@ async def chat(req: ChatRequest):
     products = get_rag_results(req.query)
     graph = get_graph_ctx(req.query)
     
-    prompt = f"BẠN LÀ MEGASTORE AI. NHIỆM VỤ: TƯ VẤN SẢN PHẨM CHÍNH XÁC.\n"
+    prompt = f"BẠN LÀ MEGASTORE AI (TÊN CỦA BẠN LÀ MEGASTORE AI, TUYỆT ĐỐI KHÔNG ĐƯỢC XƯNG TÊN LÀ VIVI). NHIỆM VỤ: TƯ VẤN SẢN PHẨM CHÍNH XÁC.\n"
+    prompt += f"KHÁCH HÀNG ĐANG TRÒ CHUYỆN VỚI BẠN TÊN LÀ: {req.user_name}\n"
     prompt += f"KHÁCH HỎI: '{req.query}'\n"
     
     if products:
         p_str = "\n".join([f"- {p['name']} ({p['brand']}) [GIÁ: ${p['price']}]: {p['category_name']}" for p in products])
-        prompt += f"DANH SÁCH SẢN PHẨM PHÙ HỢP TRONG KHO (từ FAISS RAG):\n{p_str}\n"
+        prompt += f"DANH SÁCH SẢN PHẨM PHÙ HỢP TRONG KHO:\n{p_str}\n"
 
     if graph:
-        prompt += f"\nTHÔNG TIN SẢN PHẨM THÊM TỪ ĐỒ THỊ (từ Neo4j):\n{graph}\n"
+        prompt += f"\nTHÔNG TIN SẢN PHẨM THÊM TỪ ĐỒ THỊ:\n{graph}\n"
 
     if p_cat:
-        prompt += f"\nGỢI Ý SỞ THÍCH KHÁCH HÀNG (Dự đoán từ Neo4j + Bi-LSTM): {p_cat}\n"
+        prompt += f"\nGỢI Ý SỞ THÍCH KHÁCH HÀNG : {p_cat}\n"
 
     prompt += "\n⚠️ QUY TẮC:\n"
-    prompt += "1. CHỈ ĐƯỢC tư vấn sản phẩm có trong danh sách trên (từ kho FAISS hoặc đồ thị Neo4j).\n"
-    prompt += "2. Nếu khách hỏi rẻ nhất/đắt nhất, hãy chỉ đích danh máy có giá thấp nhất/cao nhất trong danh sách.\n"
+    prompt += "1. CHỈ ĐƯỢC tư vấn sản phẩm có trong danh sách trên.\n"
+    prompt += "2. Nếu khách hỏi rẻ nhất/đắt nhất, hãy chỉ đích danh sản phẩm có giá thấp nhất/cao nhất trong danh sách.\n"
     prompt += "3. Ưu tiên gợi ý sản phẩm thuộc danh mục khách hàng đang quan tâm nhất (nếu có thông tin gợi ý sở thích).\n"
-    prompt += "4. Trả lời ngắn gọn, tự nhiên, chuyên nghiệp bằng Tiếng Việt."
+    prompt += "4. Khi có nhiều sản phẩm phù hợp trong danh sách, hãy liệt kê và giới thiệu ngắn gọn tất cả các sản phẩm đó (bao gồm tên hãng, tên sản phẩm và giá bán) để khách hàng có đầy đủ thông tin so sánh.\n"
+    prompt += "5. Tên của bạn là 'MegaStore AI' (tuyệt đối KHÔNG được xưng là 'ViVi'). Hãy chào hỏi, xưng hô và chúc khách hàng bằng tên của họ là '" + req.user_name + "'. Trả lời trực tiếp, tự nhiên, chuyên nghiệp bằng Tiếng Việt. KHÔNG được sử dụng '[Your Name]', '[Tên của bạn]' hay các nhãn giả định nào khác ở cuối câu trả lời."
 
     answer = ask_ollama(prompt) or "AI đang bận, vui lòng thử lại."
     return {
@@ -207,8 +215,55 @@ async def chat(req: ChatRequest):
 @app.post("/recommend")
 async def recommend(req: RecommendRequest):
     cat = predict_interest(req.user_id) or "Computer"
-    recs = [d['name'] for d in assets["docs"] if d['category_name'] == cat][:req.top_n]
+    recs = [f"{d['brand']} {d['name']}" for d in assets["docs"] if d['category_name'] == cat][:req.top_n]
     return {"recommendations": recs}
+
+@app.post("/recommend-related")
+async def recommend_related(req: RelatedRequest):
+    recs = []
+    if assets["neo4j_driver"] and req.product_name:
+        try:
+            with assets["neo4j_driver"].session() as session:
+                query = """
+                    MATCH (p1:Product {id: $prod_name})<-[:CLICK|ADD_TO_CART|PURCHASE]-(u:User)
+                    MATCH (u)-[:CLICK|ADD_TO_CART|PURCHASE]->(p2:Product)
+                    WHERE p1 <> p2
+                    RETURN p2.id AS name, count(DISTINCT u) AS score
+                    ORDER BY score DESC
+                    LIMIT $limit
+                """
+                res = session.run(query, prod_name=req.product_name, limit=req.top_n)
+                recs = [r['name'] for r in res]
+        except Exception as e:
+            print(f"❌ Neo4j Related Recs Error: {e}")
+
+    # Map recommended names to full doc details from assets["docs"]
+    resolved_recs = []
+    seen_ids = set()
+    current_prod_lower = req.product_name.lower()
+    
+    for rec_name in recs:
+        match = None
+        for d in assets["docs"]:
+            full_name = f"{d['brand']} {d['name']}"
+            if full_name.lower() == rec_name.lower() or d['name'].lower() == rec_name.lower():
+                match = d
+                break
+        if match and match['id'] not in seen_ids:
+            resolved_recs.append(match)
+            seen_ids.add(match['id'])
+
+    # Fallback to same category products if not enough recommendations
+    if len(resolved_recs) < req.top_n:
+        cat_prods = [d for d in assets["docs"] if d['category_name'].lower() == req.category.lower() and d['name'].lower() != current_prod_lower]
+        for d in cat_prods:
+            if d['id'] not in seen_ids:
+                resolved_recs.append(d)
+                seen_ids.add(d['id'])
+                if len(resolved_recs) >= req.top_n:
+                    break
+                    
+    return {"products": resolved_recs[:req.top_n]}
 
 @app.post("/segment")
 async def segment(req: RecommendRequest):

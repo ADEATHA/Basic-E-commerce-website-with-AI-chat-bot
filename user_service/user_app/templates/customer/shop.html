@@ -277,7 +277,7 @@
 <!-- ═══════════════ PRODUCT DETAIL MODAL ═══════════════ -->
 <div id="product-detail-modal" class="fixed inset-0 bg-stone-900/65 backdrop-blur-md z-[99999] hidden items-center justify-center p-4 transition-all duration-300">
     <!-- Modal Box -->
-    <div id="product-detail-box" class="bg-white rounded-[2.5rem] max-w-xl w-full overflow-hidden shadow-2xl border border-stone-200/50 transform transition-all duration-300 scale-95 opacity-0 flex flex-col relative animate-in fade-in zoom-in-95 duration-200">
+    <div id="product-detail-box" class="bg-white rounded-[2.5rem] max-w-xl w-full max-h-[92vh] overflow-hidden shadow-2xl border border-stone-200/50 transform transition-all duration-300 scale-95 opacity-0 flex flex-col relative animate-in fade-in zoom-in-95 duration-200">
         <!-- Close Button top right -->
         <button onclick="closeProductModal()" class="absolute top-6 right-6 bg-white/95 hover:bg-rose-50 text-stone-500 hover:text-rose-600 w-11 h-11 rounded-full flex items-center justify-center transition border border-stone-100 z-20 shadow-md">
             <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
@@ -285,53 +285,64 @@
             </svg>
         </button>
 
-        <!-- Product Image Area -->
-        <div id="modal-product-image" class="p-8 bg-stone-50/50 flex items-center justify-center border-b border-stone-100/80 h-72">
-            <!-- Populated by JS -->
-        </div>
-
-        <!-- Product Info Area -->
-        <div class="p-8 flex flex-col gap-5">
-            <div class="flex items-center justify-between">
-                <span id="modal-product-brand" class="bg-orange-100 text-orange-700 text-xs font-black px-3.5 py-1.5 rounded-full uppercase tracking-wider">Brand</span>
-                <span id="modal-product-category" class="bg-stone-100 text-stone-600 text-xs font-black px-3.5 py-1.5 rounded-full">Category</span>
-            </div>
-            
-            <h2 id="modal-product-name" class="text-3xl font-black text-stone-950 leading-snug tracking-tight">Product Name</h2>
-            
-            <div class="flex items-center gap-6">
-                <span id="modal-product-price" class="text-3xl font-black text-orange-600">$0.00</span>
-                <span id="modal-product-stock" class="bg-emerald-50 text-emerald-700 text-xs font-bold px-3 py-1 rounded-lg">Stock: 0</span>
+        <!-- Scrollable Wrapper -->
+        <div id="modal-scroll-wrapper" class="overflow-y-auto flex-1 w-full">
+            <!-- Product Image Area -->
+            <div id="modal-product-image" class="p-6 bg-stone-50/50 flex items-center justify-center border-b border-stone-100/80 h-52 shrink-0">
+                <!-- Populated by JS -->
             </div>
 
-            <!-- Quantity Selector -->
-            <div class="flex items-center gap-4 mt-1">
-                <span class="text-xs font-black text-stone-400 uppercase tracking-widest">Quantity:</span>
-                <div class="flex items-center bg-stone-150 rounded-xl p-1 border border-stone-200 shadow-inner">
-                    <button onclick="changeModalQty(-1)" class="w-8 h-8 rounded-lg bg-stone-100 hover:bg-stone-200 text-stone-600 font-bold transition flex items-center justify-center border border-stone-200 shadow-sm">-</button>
-                    <input type="number" id="modal-product-qty" value="1" min="1" class="w-12 text-center bg-transparent border-none outline-none font-bold text-stone-800 text-sm [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none">
-                    <button onclick="changeModalQty(1)" class="w-8 h-8 rounded-lg bg-stone-100 hover:bg-stone-200 text-stone-600 font-bold transition flex items-center justify-center border border-stone-200 shadow-sm">+</button>
+            <!-- Product Info Area -->
+            <div class="p-6 pb-8 flex flex-col gap-4">
+                <div class="flex items-center justify-between">
+                    <span id="modal-product-brand" class="bg-orange-100 text-orange-700 text-xs font-black px-3.5 py-1.5 rounded-full uppercase tracking-wider">Brand</span>
+                    <span id="modal-product-category" class="bg-stone-100 text-stone-600 text-xs font-black px-3.5 py-1.5 rounded-full">Category</span>
+                </div>
+                
+                <h2 id="modal-product-name" class="text-3xl font-black text-stone-950 leading-snug tracking-tight">Product Name</h2>
+                
+                <div class="flex items-center gap-6">
+                    <span id="modal-product-price" class="text-3xl font-black text-orange-600">$0.00</span>
+                    <span id="modal-product-stock" class="bg-emerald-50 text-emerald-700 text-xs font-bold px-3 py-1 rounded-lg">Stock: 0</span>
+                </div>
+
+                <!-- Quantity Selector -->
+                <div class="flex items-center gap-4 mt-1">
+                    <span class="text-xs font-black text-stone-400 uppercase tracking-widest">Quantity:</span>
+                    <div class="flex items-center bg-stone-150 rounded-xl p-1 border border-stone-200 shadow-inner">
+                        <button onclick="changeModalQty(-1)" class="w-8 h-8 rounded-lg bg-stone-100 hover:bg-stone-200 text-stone-600 font-bold transition flex items-center justify-center border border-stone-200 shadow-sm">-</button>
+                        <input type="number" id="modal-product-qty" value="1" min="1" class="w-12 text-center bg-transparent border-none outline-none font-bold text-stone-800 text-sm [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none">
+                        <button onclick="changeModalQty(1)" class="w-8 h-8 rounded-lg bg-stone-100 hover:bg-stone-200 text-stone-600 font-bold transition flex items-center justify-center border border-stone-200 shadow-sm">+</button>
+                    </div>
+                </div>
+
+                <!-- Description -->
+                <div class="border-t border-stone-100 pt-5 mt-1">
+                    <h4 class="text-xs font-black text-stone-400 uppercase tracking-widest mb-2">Description</h4>
+                    <p id="modal-product-description" class="text-stone-600 text-sm leading-relaxed max-h-24 overflow-y-auto pr-2">Product description goes here.</p>
+                </div>
+
+                <!-- Related Products Section (Collaborative Filtering) -->
+                <div class="border-t border-stone-100 pt-4 mt-1">
+                    <h4 class="text-xs font-black text-stone-400 uppercase tracking-widest mb-2.5">Customers Also Bought 🤝</h4>
+                    <div id="modal-related-products" class="grid grid-cols-3 gap-3">
+                        <!-- Injected by JS -->
+                    </div>
                 </div>
             </div>
+        </div>
 
-            <!-- Description -->
-            <div class="border-t border-stone-100 pt-5 mt-1">
-                <h4 class="text-xs font-black text-stone-400 uppercase tracking-widest mb-2">Description</h4>
-                <p id="modal-product-description" class="text-stone-600 text-sm leading-relaxed max-h-24 overflow-y-auto pr-2">Product description goes here.</p>
-            </div>
-
-            <!-- Modal Action Buttons -->
-            <div class="flex gap-4 mt-6">
-                <button onclick="closeProductModal()" class="flex-1 bg-stone-100 hover:bg-stone-200 text-stone-700 py-3 rounded-2xl font-bold transition">
-                    Back
-                </button>
-                <button id="modal-product-add-cart" class="flex-[2] bg-orange-600 hover:bg-orange-700 text-white py-3 rounded-2xl font-bold transition shadow-lg shadow-orange-600/20 active:scale-95 flex items-center justify-center gap-2">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/>
-                    </svg>
-                    Add to Cart
-                </button>
-            </div>
+        <!-- Sticky Bottom Action Bar -->
+        <div class="border-t border-stone-100 bg-stone-50/90 backdrop-blur-md px-6 py-4 flex gap-4 w-full rounded-b-[2.5rem] shrink-0 z-10">
+            <button onclick="closeProductModal()" class="flex-1 bg-white hover:bg-stone-100 text-stone-700 py-3 rounded-2xl font-bold transition border border-stone-200 shadow-sm">
+                Back
+            </button>
+            <button id="modal-product-add-cart" class="flex-[2] bg-orange-600 hover:bg-orange-700 text-white py-3 rounded-2xl font-bold transition shadow-lg shadow-orange-600/20 active:scale-95 flex items-center justify-center gap-2">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/>
+                </svg>
+                Add to Cart
+            </button>
         </div>
     </div>
 </div>
@@ -377,6 +388,21 @@
 </div>
 
 <style>
+    /* Custom Scrollbar for Detailed Modal */
+    #modal-scroll-wrapper::-webkit-scrollbar {
+        width: 6px;
+    }
+    #modal-scroll-wrapper::-webkit-scrollbar-track {
+        background: transparent;
+    }
+    #modal-scroll-wrapper::-webkit-scrollbar-thumb {
+        background: #cbd5e1; /* slate-300 */
+        border-radius: 9999px;
+    }
+    #modal-scroll-wrapper::-webkit-scrollbar-thumb:hover {
+        background: #94a3b8; /* slate-400 */
+    }
+
     .active-dot {
         background-color: #f97316 !important;
         width: 3rem !important;
@@ -450,7 +476,7 @@
                 const brand = card.dataset.brand.toLowerCase();
                 const price = parseFloat(card.dataset.price);
 
-                const matchesSearch = name.includes(query) || brand.includes(query);
+                const matchesSearch = (brand + " " + name).includes(query) || name.includes(query) || brand.includes(query);
                 const matchesPrice  = price >= minPrice && price <= maxPrice;
 
                 if (matchesSearch && matchesPrice) {
@@ -571,6 +597,74 @@
             addToCart(id, name, brand, price, categoryName, qty);
             closeProductModal();
         };
+
+        // Clear related products before fetching
+        const relatedContainer = document.getElementById('modal-related-products');
+        if (relatedContainer) {
+            relatedContainer.innerHTML = `
+                <div class="col-span-3 flex justify-center py-2 animate-pulse text-stone-400 text-xs">
+                    Loading related items...
+                </div>
+            `;
+        }
+
+        // Fetch related products from backend
+        fetch(`${AI_BASE}/recommend-related`, {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({ product_name: name, category: categoryName, top_n: 3 })
+        })
+        .then(res => {
+            if (!res.ok) throw new Error("HTTP error " + res.status);
+            return res.json();
+        })
+        .then(data => {
+            if (!relatedContainer) return;
+            relatedContainer.innerHTML = '';
+            if (data.products && data.products.length > 0) {
+                data.products.forEach(p => {
+                    const p_escName = p.name.replace(/'/g, "\\'");
+                    const p_escBrand = p.brand.replace(/'/g, "\\'");
+                    const p_escDesc = (p.description || '').replace(/'/g, "\\'").replace(/\n/g, ' ');
+                    const p_escCat = p.category_name.replace(/'/g, "\\'");
+                    const p_escImg = (p.image_url || '').replace(/'/g, "\\'");
+                    
+                    let p_mediaHTML = '';
+                    if (p.image_url && p.image_url !== 'None' && p.image_url !== '') {
+                        p_mediaHTML = `<img src="${p.image_url}" class="w-8 h-8 object-contain rounded-lg mb-1">`;
+                    } else {
+                        let p_emoji = '🛍️';
+                        if (p.category_name === 'Mobile') p_emoji = '📱';
+                        else if (p.category_name === 'Computer') p_emoji = '💻';
+                        else if (p.category_name === 'Clothes') p_emoji = '👕';
+                        else if (p.category_name === 'Shoes') p_emoji = '👟';
+                        else if (p.category_name === 'Watches') p_emoji = '⌚';
+                        else if (p.category_name === 'Cosmetics') p_emoji = '💄';
+                        p_mediaHTML = `<div class="text-xl mb-1">${p_emoji}</div>`;
+                    }
+                    
+                    const card = document.createElement('div');
+                    card.className = "bg-stone-50 border border-stone-150 rounded-xl p-2 flex flex-col items-center text-center cursor-pointer hover:bg-orange-50 hover:border-orange-200 transition transform hover:-translate-y-0.5";
+                    card.onclick = function() {
+                        showProductDetail(p.id, p_escName, p_escBrand, p.price, p.stock, p_escImg, p_escDesc, p_escCat);
+                    };
+                    card.innerHTML = `
+                        ${p_mediaHTML}
+                        <div class="text-[10px] font-bold text-stone-800 line-clamp-1 leading-tight mb-0.5">${p.brand} ${p.name}</div>
+                        <div class="text-[10px] font-extrabold text-orange-600">$${p.price}</div>
+                    `;
+                    relatedContainer.appendChild(card);
+                });
+            } else {
+                relatedContainer.innerHTML = '<div class="col-span-3 text-stone-400 text-xs italic text-center py-2">No related items found.</div>';
+            }
+        })
+        .catch(err => {
+            console.error("Related recs fetch failed:", err);
+            if (relatedContainer) {
+                relatedContainer.innerHTML = '<div class="col-span-3 text-stone-400 text-xs italic text-center py-2">Unable to load recommendations.</div>';
+            }
+        });
         
         // Hiển thị modal với hiệu ứng animation
         const modal = document.getElementById('product-detail-modal');
@@ -663,6 +757,7 @@
         ? '/api/ai' 
         : `${window.location.protocol}//${window.location.hostname}:8100/api/ai`;
     const USER_ID = parseInt('{{ user.id }}') || 0;
+    const USER_NAME = '{{ user.username }}' || 'Khách';
 
     async function loadRecommendations() {
         const section = document.getElementById('ai-recommend-section');
@@ -711,11 +806,11 @@
                 });
 
                 grid.innerHTML = recs.map(recName => {
-                    const match = allProducts.find(p => p.name.toLowerCase().includes(recName.toLowerCase().split(' ')[0]));
+                    const match = allProducts.find(p => p.name.toLowerCase().includes(recName.toLowerCase()));
                     const mediaHTML = match ? match.media : '<div class="text-3xl mb-2">🛍️</div>';
                     const price = match ? `$${match.price}` : '';
                     return `<div class="ai-rec-card bg-white rounded-2xl border border-orange-100 p-4 flex flex-col items-center text-center cursor-pointer hover:shadow-md transition"
-                        onclick="document.getElementById('searchInput').value='${recName.split(' ')[0]}';applyFilters()">
+                        onclick="document.getElementById('searchInput').value='${recName}';applyFilters()">
                         ${mediaHTML}
                         <div class="font-semibold text-sm text-stone-800 leading-tight">${recName}</div>
                         ${price ? `<div class="text-orange-600 font-bold text-sm mt-1">${price}</div>` : ''}
@@ -808,7 +903,7 @@
             const res  = await fetch(`${AI_BASE}/chat`, {
                 method: 'POST',
                 headers: {'Content-Type':'application/json'},
-                body: JSON.stringify({query, user_id: USER_ID, cart_items: cart_items, mode: chatMode})
+                body: JSON.stringify({query, user_id: USER_ID, user_name: USER_NAME, cart_items: cart_items, mode: chatMode})
             });
             const data = await res.json();
             thinking.textContent = data.answer || 'Xin lỗi, tôi chưa tìm được sản phẩm phù hợp.';
