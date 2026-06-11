@@ -108,30 +108,30 @@ def predict_interest(user_id):
 def get_rag_results(query, k=4):
     query_lower = query.lower()
     
-    # Identify Target Category
-    target_cat = None
+    # Identify Target Categories
+    target_cats = []
     if any(kw in query_lower for kw in ["laptop", "máy tính", "computer", "macbook", "pc"]):
-        target_cat = "Computer"
-    elif any(kw in query_lower for kw in ["điện thoại", "phone", "iphone", "samsung", "mobile", "đt"]):
-        target_cat = "Mobile"
-    elif any(kw in query_lower for kw in ["giày", "shoes", "sneaker", "giay"]):
-        target_cat = "Shoes"
-    elif any(kw in query_lower for kw in ["quần áo", "áo", "quần", "clothes", "shirt", "jeans", "jacket", "hoodie", "thời trang"]):
-        target_cat = "Clothes"
-    elif any(kw in query_lower for kw in ["đồng hồ", "watch", "dong ho"]):
-        target_cat = "Watches"
-    elif any(kw in query_lower for kw in ["mỹ phẩm", "cosmetics", "son", "kem", "perfume", "nước hoa"]):
-        target_cat = "Cosmetics"
-    elif any(kw in query_lower for kw in ["nội thất", "bàn", "ghế", "furniture", "sofa", "chair", "table"]):
-        target_cat = "Furniture"
-    elif any(kw in query_lower for kw in ["bếp", "kitchenware", "nồi", "dao", "kettle", "mixer"]):
-        target_cat = "Kitchenware"
-    elif any(kw in query_lower for kw in ["sách", "book", "truyện"]):
-        target_cat = "Books"
-    elif any(kw in query_lower for kw in ["thể thao", "sportswear", "gym", "yoga"]):
-        target_cat = "Sportswear"
-    elif any(kw in query_lower for kw in ["phụ kiện", "accessories", "kính", "ví", "wallet", "backpack"]):
-        target_cat = "Accessories"
+        target_cats.append("Computer")
+    if any(kw in query_lower for kw in ["điện thoại", "phone", "iphone", "samsung", "mobile", "đt"]):
+        target_cats.append("Mobile")
+    if any(kw in query_lower for kw in ["giày", "shoes", "sneaker", "giay"]):
+        target_cats.append("Shoes")
+    if any(kw in query_lower for kw in ["quần áo", "áo", "quần", "clothes", "shirt", "jeans", "jacket", "hoodie", "thời trang"]):
+        target_cats.append("Clothes")
+    if any(kw in query_lower for kw in ["đồng hồ", "watch", "dong ho"]):
+        target_cats.append("Watches")
+    if any(kw in query_lower for kw in ["mỹ phẩm", "cosmetics", "son", "kem", "perfume", "nước hoa"]):
+        target_cats.append("Cosmetics")
+    if any(kw in query_lower for kw in ["nội thất", "bàn", "ghế", "furniture", "sofa", "chair", "table"]):
+        target_cats.append("Furniture")
+    if any(kw in query_lower for kw in ["bếp", "kitchenware", "nồi", "dao", "kettle", "mixer"]):
+        target_cats.append("Kitchenware")
+    if any(kw in query_lower for kw in ["sách", "book", "truyện"]):
+        target_cats.append("Books")
+    if any(kw in query_lower for kw in ["thể thao", "sportswear", "gym", "yoga"]):
+        target_cats.append("Sportswear")
+    if any(kw in query_lower for kw in ["phụ kiện", "accessories", "kính", "ví", "wallet", "backpack"]):
+        target_cats.append("Accessories")
 
     # Identify Price Intent
     sort_mode = None 
@@ -142,8 +142,8 @@ def get_rag_results(query, k=4):
 
     # Filter all docs by category first for guaranteed accuracy
     filtered_docs = assets["docs"]
-    if target_cat:
-        filtered_docs = [d for d in assets["docs"] if d['category_name'] == target_cat]
+    if target_cats:
+        filtered_docs = [d for d in assets["docs"] if d['category_name'] in target_cats]
 
     if sort_mode == 1:
         filtered_docs.sort(key=lambda x: x['price'])
@@ -158,8 +158,8 @@ def get_rag_results(query, k=4):
         faiss.normalize_L2(q_emb)
         _, ids = assets["faiss_index"].search(q_emb, 20)
         candidates = [assets["docs"][i] for i in ids[0] if i < len(assets["docs"])]
-        if target_cat:
-            candidates = [c for c in candidates if c['category_name'] == target_cat]
+        if target_cats:
+            candidates = [c for c in candidates if c['category_name'] in target_cats]
         return candidates[:k]
     
     return filtered_docs[:k]
